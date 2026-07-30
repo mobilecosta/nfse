@@ -1,0 +1,47 @@
+<po-page [p-title]="'Emissão de NFS-e'" [p-actions]="acoesPrincipais()" [p-secondary-actions]="acoesSecundarias()">
+  <form [formGroup]="nfseForm" class="nfse-form">
+    <div class="form-section">
+      <h3 class="section-title">Dados do Prestador</h3>
+      <div class="form-row">
+        <po-input name="prestadorCpfCnpj" label="CPF/CNPJ" formControlName="prestadorCpfCnpj"></po-input>
+        <po-input name="prestadorNome" label="Nome/Razão Social" formControlName="prestadorNome"></po-input>
+      </div>
+      <div class="form-row">
+        <po-input name="prestadorEmail" label="E-mail" formControlName="prestadorEmail"></po-input>
+        <po-input name="prestadorTelefone" label="Telefone" formControlName="prestadorTelefone"></po-input>
+      </div>
+    </div>
+    <div class="form-section">
+      <h3 class="section-title">Dados do Tomador</h3>
+      <div class="form-row">
+        <po-input name="tomadorCpfCnpj" label="CPF/CNPJ" formControlName="tomadorCpfCnpj"></po-input>
+        <po-input name="tomadorNome" label="Nome/Razão Social" formControlName="tomadorNome"></po-input>
+      </div>
+      <div class="form-row">
+        <po-input name="tomadorCep" label="CEP" formControlName="tomadorCep" (p-blur)="consultarCep()"></po-input>
+        <po-input name="tomadorLogradouro" label="Logradouro" formControlName="tomadorLogradouro"></po-input>
+      </div>
+      <div class="form-row">
+        <po-input name="tomadorNumero" label="Número" formControlName="tomadorNumero"></po-input>
+        <po-input name="tomadorBairro" label="Bairro" formControlName="tomadorBairro"></po-input>
+        <po-input name="tomadorCidade" label="Cidade" formControlName="tomadorCidade"></po-input>
+        <po-input name="tomadorUf" label="UF" formControlName="tomadorUf"></po-input>
+      </div>
+    </div>
+    <div class="form-section">
+      <h3 class="section-title">Dados do Serviço</h3>
+      <div class="form-row">
+        <po-input name="servicoCodigoCnae" label="CNAE" formControlName="servicoCodigoCnae"></po-input>
+        <po-input name="servicoCodigoTributacao" label="Cód. Tributação" formControlName="servicoCodigoTributacao"></po-input>
+      </div>
+      <div class="form-row">
+        <po-textarea name="servicoDescricao" label="Descrição" formControlName="servicoDescricao" [p-rows]="2"></po-textarea>
+      </div>
+      <div class="form-row">
+        <po-number name="servicoQuantidade" label="Quantidade" formControlName="servicoQuantidade"></po-number>
+        <po-number name="servicoValorUnitario" label="Valor Unitário" formControlName="servicoValorUnitario"></po-number>
+        <po-number name="servicoAliquotaIss" label="Alíquota ISS" formControlName="servicoAliquotaIss"></po-number>
+      </div>
+    </div>
+  </form>
+</po-page>

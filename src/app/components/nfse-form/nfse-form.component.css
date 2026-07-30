@@ -1,0 +1,30 @@
+.nfse-form {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.form-section {
+  background: #fff;
+  padding: 24px;
+  margin-bottom: 24px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0c5da8;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #e8ecef;
+  padding-bottom: 8px;
+}
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.form-row > * {
+  flex: 1;
+  min-width: 200px;
+}
