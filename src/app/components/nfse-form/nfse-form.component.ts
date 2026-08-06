@@ -60,7 +60,18 @@ export class NfseFormComponent {
       servicoValorUnitario: [0],
       servicoAliquotaIss: [0]
     });
-    this.listarNotas();
+    this.carregarListaComToken();
+  }
+
+  private carregarListaComToken() {
+    this.carregandoLista.set(true);
+    this.nfseService.garantirTokenAcbr().subscribe({
+      next: () => this.listarNotas(),
+      error: (error: any) => {
+        this.carregandoLista.set(false);
+        this.poNotification.error('Erro ao obter token ACBr: ' + (error.error?.message || error.statusText || 'não foi possível autenticar'));
+      }
+    });
   }
 
   get f() { return this.nfseForm.controls; }

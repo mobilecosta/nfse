@@ -1,6 +1,6 @@
 import { Component, signal, computed } from '@angular/core';
 import { RouterOutlet, Router } from '@angular/router';
-import { PoModule, PoToolbarAction, PoToolbarProfile } from '@po-ui/ng-components';
+import { PoModule, PoToolbarAction, PoToolbarProfile, PoMenuItem } from '@po-ui/ng-components';
 import { AuthService } from './services/auth.service';
 
 @Component({
@@ -11,7 +11,7 @@ import { AuthService } from './services/auth.service';
     @if (auth.autenticado) {
       <div class="po-wrapper">
         <po-toolbar [p-title]="'Sistema de Emissão de NFS-e'" [p-profile]="perfil()" [p-profile-actions]="acoesToolbar"></po-toolbar>
-        <po-menu [p-menus]="menus"></po-menu>
+        <po-menu [p-menus]="menus()" [p-collapsed]="menuColapsado()"></po-menu>
         <router-outlet></router-outlet>
       </div>
     } @else {
@@ -21,11 +21,16 @@ import { AuthService } from './services/auth.service';
 })
 export class App {
   protected readonly title = signal('nfse');
-  protected readonly menus = [
-    { label: 'Início', link: '/' },
-    { label: 'Emissão de NFS-e', link: '/emissao' },
-    { label: 'Certificado Digital', link: '/certificado' }
-  ];
+  protected readonly menuColapsado = signal(false);
+
+  protected readonly menus = computed<PoMenuItem[]>(() => [
+    { label: 'Início', shortLabel: 'Início', icon: 'an-house', link: '/' },
+    { label: 'Emissão de NFS-e', shortLabel: 'NFS-e', icon: 'an-file-doc', link: '/emissao' },
+    { label: 'Certificado Digital', shortLabel: 'Certificado', icon: 'an-identification-card', link: '/certificado' },
+    this.menuColapsado()
+      ? { label: 'Expandir Menu', shortLabel: 'Menu', icon: 'an-text-outdent', action: () => this.alternarMenu() }
+      : { label: 'Recolher Menu', shortLabel: 'Menu', icon: 'an-text-indent', action: () => this.alternarMenu() }
+  ]);
 
   protected readonly acoesToolbar: PoToolbarAction[] = [
     { label: 'Sair', icon: 'an-sign-out', action: () => this.sair() }
@@ -42,5 +47,9 @@ export class App {
   sair() {
     this.auth.logout();
     this.router.navigate(['/login']);
+  }
+
+  alternarMenu() {
+    this.menuColapsado.set(!this.menuColapsado());
   }
 }
