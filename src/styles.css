@@ -1,4 +1,4 @@
-@import '@po-ui/style/index.css';
+@import '@po-ui/style/css/po-theme-default.min.css';
 
 * {
   margin: 0;

@@ -1,5 +1,4 @@
 import { Component, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { PoPageAction } from '@po-ui/ng-components';
 import { NfseService } from '../../services/nfse.service';
@@ -18,8 +17,7 @@ export class NfseFormComponent {
   
   constructor(
     private fb: FormBuilder,
-    private nfseService: NfseService,
-    private router: Router
+    private nfseService: NfseService
   ) {
     this.nfseForm = this.fb.group({
       prestadorCpfCnpj: ['66549275000197', [Validators.required]],
