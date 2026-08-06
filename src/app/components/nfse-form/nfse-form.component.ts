@@ -67,9 +67,9 @@ export class NfseFormComponent {
   get acoesNota(): PoTableAction[] {
     return [
       {
-        label: 'Alterar',
-        icon: 'po-icon-edit',
-        action: (row: any) => this.alterarNota(row)
+        label: 'Visualizar',
+        icon: 'po-icon-eye',
+        action: (row: any) => this.visualizarNota(row)
       },
       {
         label: 'Excluir',
@@ -139,14 +139,14 @@ export class NfseFormComponent {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  alterarNota(nota: any) {
+  visualizarNota(nota: any) {
     this.notaSelecionada = nota;
     this.carregando.set(true);
     this.nfseService.consultarNfse(nota.id).subscribe({
       next: (detalhe: any) => {
         this.carregando.set(false);
         this.preencherFormulario(detalhe);
-        this.poNotification.information(`Nota ${nota.id} carregada para alteração. A alteração gera uma nova emissão.`);
+        this.poNotification.information(`Dados da nota ${nota.id} carregados para visualização.`);
         window.scrollTo({ top: 0, behavior: 'smooth' });
       },
       error: (error: any) => {
