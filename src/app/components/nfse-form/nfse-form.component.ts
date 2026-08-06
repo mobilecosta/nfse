@@ -22,6 +22,7 @@ export class NfseFormComponent {
   paginaTamanho = 10;
   notaSelecionada: any = null;
   motivoExclusao = '';
+  modoVisualizacao = false;
 
   @ViewChild('modalExclusao') modalExclusao!: PoModalComponent;
   @ViewChild('modalEmissao') modalEmissao!: PoModalComponent;
@@ -43,24 +44,71 @@ export class NfseFormComponent {
   ) {
     this.nfseForm = this.fb.group({
       prestadorCpfCnpj: ['66549275000197', [Validators.required]],
-      prestadorNome: ['', Validators.required],
+      prestadorNome: [''],
       prestadorEmail: [''],
       prestadorTelefone: [''],
+      prestadorInscricaoMunicipal: [''],
+      prestadorCep: [''],
+      prestadorLogradouro: [''],
+      prestadorNumero: [''],
+      prestadorComplemento: [''],
+      prestadorBairro: [''],
+      prestadorCidade: [''],
+      prestadorUf: [''],
       tomadorCpfCnpj: ['', [Validators.required]],
-      tomadorNome: ['', Validators.required],
+      tomadorNome: ['', [Validators.required]],
       tomadorCep: [''],
       tomadorLogradouro: [''],
       tomadorNumero: [''],
+      tomadorComplemento: [''],
       tomadorBairro: [''],
       tomadorCidade: [''],
+      tomadorCodigoMunicipio: [''],
       tomadorUf: [''],
+      tomadorEmail: [''],
+      tomadorTelefone: [''],
+      tomadorInscricaoMunicipal: [''],
+      tomadorInscricaoEstadual: [''],
+      tomadorNif: [''],
+      tomadorCaepf: [''],
+      intermCpfCnpj: [''],
+      intermNome: [''],
       servicoCodigoCnae: [''],
-      servicoDescricao: ['', Validators.required],
+      servicoCodigoTributacao: ['010701', [Validators.required]],
+      servicoCodigoTributacaoMunicipal: [''],
+      servicoNbs: [''],
+      servicoNaturezaOperacao: [''],
+      servicoSituacaoTributaria: [''],
+      servicoDescricao: ['', [Validators.required]],
       servicoQuantidade: [1],
-      servicoValorUnitario: [0],
-      servicoAliquotaIss: [0]
+      servicoValorUnitario: [0, [Validators.required]],
+      servicoAliquotaIss: [0],
+      tributacaoIssqn: [1],
+      retencaoIssqn: [1],
+      localIncidencia: ['3550308'],
+      valorDescontoIncondicionado: [0],
+      valorDescontoCondicionado: [0],
+      deducaoValor: [0],
+      deducaoPercentual: [0],
+      retencaoCp: [0],
+      retencaoIrrf: [0],
+      retencaoCsll: [0],
+      valorBaseCalculo: [0],
+      valorIss: [0],
+      valorLiquido: [0]
     });
     this.carregarListaComToken();
+  }
+
+  get totalPaginas(): number {
+    return Math.max(1, Math.ceil(this.totalNotas / this.paginaTamanho));
+  }
+
+  get tituloModal(): string {
+    if (this.modoVisualizacao) {
+      return `NFS-e ${this.notaSelecionada?.referencia || this.notaSelecionada?.id || ''}`;
+    }
+    return 'Emitir NFS-e';
   }
 
   private carregarListaComToken() {
@@ -113,42 +161,48 @@ export class NfseFormComponent {
     });
   }
 
-  carregarMais() {
-    if (this.notas.length >= this.totalNotas) return;
-    this.paginaAtual++;
-    const skip = (this.paginaAtual - 1) * this.paginaTamanho;
-    this.carregandoLista.set(true);
-    const cpfCnpj = this.nfseForm.get('prestadorCpfCnpj')?.value || '66549275000197';
-    this.nfseService.listarNfse(cpfCnpj, 'homologacao', this.paginaTamanho, skip).subscribe({
-      next: (res: any) => {
-        this.notas = [
-          ...this.notas,
-          ...(res.data || []).map((n: any) => ({
-            ...n,
-            serieDps: n.DPS?.serie ?? '',
-            numeroDps: n.DPS?.nDPS ?? '',
-            mensagensResumo: (n.mensagens || []).map((m: any) => `${m.codigo}: ${m.descricao}`).join(' | ')
-          }))
-        ];
-        this.totalNotas = res['@count'] ?? this.notas.length;
-        this.carregandoLista.set(false);
-      },
-      error: (error: any) => {
-        this.carregandoLista.set(false);
-        this.poNotification.error('Erro ao listar notas: ' + (error.error?.message || error.statusText));
-      }
-    });
+  irParaPagina(pagina: number) {
+    if (pagina < 1 || pagina > this.totalPaginas || pagina === this.paginaAtual) return;
+    this.paginaAtual = pagina;
+    this.listarNotas();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  paginaAnterior() { this.irParaPagina(this.paginaAtual - 1); }
+  paginaProxima() { this.irParaPagina(this.paginaAtual + 1); }
+
   incluirNota() {
+    this.modoVisualizacao = false;
     this.notaSelecionada = null;
     this.nfseForm.reset({
       prestadorCpfCnpj: '66549275000197',
+      servicoCodigoTributacao: '010701',
       servicoQuantidade: 1,
       servicoValorUnitario: 0,
-      servicoAliquotaIss: 0
+      servicoAliquotaIss: 0,
+      tributacaoIssqn: 1,
+      retencaoIssqn: 1,
+      localIncidencia: '3550308',
+      valorDescontoIncondicionado: 0,
+      valorDescontoCondicionado: 0,
+      deducaoValor: 0,
+      deducaoPercentual: 0,
+      retencaoCp: 0,
+      retencaoIrrf: 0,
+      retencaoCsll: 0,
+      valorBaseCalculo: 0,
+      valorIss: 0,
+      valorLiquido: 0
     });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    this.modalEmissao?.open();
+  }
+
+  abrirEmissao() {
+    this.modoVisualizacao = false;
+    if (!this.nfseForm.get('prestadorCpfCnpj')?.value) {
+      this.nfseForm.patchValue({ prestadorCpfCnpj: '66549275000197' });
+    }
+    this.modalEmissao?.open();
   }
 
   visualizarNota(nota: any) {
@@ -157,8 +211,8 @@ export class NfseFormComponent {
     this.nfseService.consultarNfse(nota.id).subscribe({
       next: (detalhe: any) => {
         this.carregando.set(false);
+        this.modoVisualizacao = true;
         this.preencherFormulario(detalhe);
-        this.poNotification.information(`Dados da nota ${nota.id} carregados para visualização.`);
         this.modalEmissao?.open();
       },
       error: (error: any) => {
@@ -169,29 +223,77 @@ export class NfseFormComponent {
   }
 
   private preencherFormulario(nota: any) {
-    const dps = nota.infDPS || nota.declaracao_prestacao_servico || {};
-    const toma = dps.toma || {};
-    const end = toma.end || {};
-    const serv = dps.serv || {};
+    const rps = nota.declaracao_prestacao_servico || {};
+    const dps = nota.infDPS || {};
+    const pres = dps.prest || {};
+    const toma = dps.toma || rps.tomador || {};
+    const interm = dps.interm || rps.intermediario || {};
+    const end = toma.end || rps.tomador?.endereco || {};
+    const endPrest = pres.end || rps.prestador?.endereco || {};
+    const serv = dps.serv?.cServ || {};
     const valores = dps.valores || {};
-    const trib = valores.trib?.tribMun || {};
+    const tribMun = valores.trib?.tribMun || {};
+    const tribFed = valores.trib?.tribFed || {};
+    const vServPrest = valores.vServPrest || {};
+    const vDesc = valores.vDescCondIncond || {};
+    const vDedRed = valores.vDedRed || {};
+    const servicoRps = (rps.servicos || [])[0] || {};
+    const endNac = end.endNac || {};
+
     this.nfseForm.patchValue({
-      prestadorCpfCnpj: dps.prest?.CNPJ || dps.prest?.CPF || '66549275000197',
-      prestadorNome: dps.prest?.xNome || '',
-      prestadorEmail: dps.prest?.email || '',
-      prestadorTelefone: dps.prest?.fone || '',
-      tomadorCpfCnpj: toma.CNPJ || toma.CPF || '',
-      tomadorNome: toma.xNome || '',
-      tomadorCep: end.CEP || '',
-      tomadorLogradouro: end.xLgr || '',
-      tomadorNumero: end.nro || '',
-      tomadorBairro: end.xBairro || '',
-      tomadorCidade: end.endNac?.xMun || '',
-      tomadorUf: end.uf || '',
-      servicoCodigoCnae: serv.cServ?.CNAE || '',
-      servicoDescricao: serv.cServ?.xDescServ || '',
-      servicoValorUnitario: valores.vServPrest?.vServ || 0,
-      servicoAliquotaIss: trib.pAliq || 0
+      prestadorCpfCnpj: pres.CNPJ || pres.CPF || rps.prestador?.cpf_cnpj || '66549275000197',
+      prestadorNome: pres.xNome || rps.prestador?.nome_razao_social || rps.prestador?.nome_fantasia || '',
+      prestadorEmail: pres.email || rps.prestador?.email || '',
+      prestadorTelefone: pres.fone || rps.prestador?.fone || '',
+      prestadorInscricaoMunicipal: rps.prestador?.inscricao_municipal || '',
+      prestadorCep: endPrest.CEP || endPrest.endNac?.CEP || rps.prestador?.endereco?.cep || '',
+      prestadorLogradouro: endPrest.xLgr || rps.prestador?.endereco?.logradouro || '',
+      prestadorNumero: endPrest.nro || rps.prestador?.endereco?.numero || '',
+      prestadorComplemento: endPrest.xCpl || rps.prestador?.endereco?.complemento || '',
+      prestadorBairro: endPrest.xBairro || rps.prestador?.endereco?.bairro || '',
+      prestadorCidade: endPrest.endNac?.cMun || rps.prestador?.endereco?.cidade || '',
+      prestadorUf: rps.prestador?.endereco?.uf || '',
+      tomadorCpfCnpj: toma.CNPJ || toma.CPF || toma.NIF || rps.tomador?.cpf_cnpj || '',
+      tomadorNome: toma.xNome || rps.tomador?.nome_razao_social || '',
+      tomadorCep: endNac.CEP || end.CEP || rps.tomador?.endereco?.cep || '',
+      tomadorLogradouro: end.xLgr || rps.tomador?.endereco?.logradouro || '',
+      tomadorNumero: end.nro || rps.tomador?.endereco?.numero || '',
+      tomadorComplemento: end.xCpl || rps.tomador?.endereco?.complemento || '',
+      tomadorBairro: end.xBairro || rps.tomador?.endereco?.bairro || '',
+      tomadorCidade: endNac.cMun || rps.tomador?.endereco?.cidade || '',
+      tomadorCodigoMunicipio: endNac.cMun || rps.tomador?.endereco?.codigo_municipio || '',
+      tomadorUf: end.uf || rps.tomador?.endereco?.uf || '',
+      tomadorEmail: toma.email || rps.tomador?.email || '',
+      tomadorTelefone: toma.fone || rps.tomador?.fone || '',
+      tomadorInscricaoMunicipal: toma.IM || rps.tomador?.inscricao_municipal || '',
+      tomadorInscricaoEstadual: toma.IE || '',
+      tomadorNif: toma.NIF || '',
+      tomadorCaepf: toma.CAEPF || '',
+      intermCpfCnpj: interm.CNPJ || interm.CPF || interm.NIF || rps.intermediario?.cpf_cnpj || '',
+      intermNome: interm.xNome || rps.intermediario?.nome_razao_social || '',
+      servicoCodigoCnae: serv.CNAE || servicoRps.codigo_cnae || '',
+      servicoCodigoTributacao: serv.cTribNac || servicoRps.codigo_tributacao || '010701',
+      servicoCodigoTributacaoMunicipal: serv.cTribMun || '',
+      servicoNbs: serv.cNBS || '',
+      servicoNaturezaOperacao: serv.cNatOp || '',
+      servicoSituacaoTributaria: serv.cSitTrib || '',
+      servicoDescricao: serv.xDescServ || servicoRps.descricao || '',
+      servicoQuantidade: servicoRps.quantidade || 1,
+      servicoValorUnitario: servicoRps.valor_unitario ?? vServPrest.vServ ?? 0,
+      servicoAliquotaIss: tribMun.pAliq ?? servicoRps.aliquota_iss ?? 0,
+      tributacaoIssqn: tribMun.tribISSQN ?? 1,
+      retencaoIssqn: tribMun.tpRetISSQN ?? 1,
+      localIncidencia: tribMun.cLocIncid || '3550308',
+      valorDescontoIncondicionado: vDesc.vDescIncond ?? servicoRps.desconto_incondicionado ?? 0,
+      valorDescontoCondicionado: vDesc.vDescCond ?? servicoRps.desconto_condicionado ?? 0,
+      deducaoValor: vDedRed.vDR ?? servicoRps.valor_deducoes ?? 0,
+      deducaoPercentual: vDedRed.pDR ?? 0,
+      retencaoCp: tribFed.vRetCP ?? servicoRps.valor_pis ?? 0,
+      retencaoIrrf: tribFed.vRetIRRF ?? servicoRps.valor_ir ?? 0,
+      retencaoCsll: tribFed.vRetCSLL ?? servicoRps.valor_csll ?? 0,
+      valorBaseCalculo: tribMun.vBC ?? servicoRps.valor_servicos ?? 0,
+      valorIss: tribMun.vISSQN ?? servicoRps.valor_iss ?? 0,
+      valorLiquido: tribMun.vLiq ?? servicoRps.valor_liquido ?? 0
     });
   }
 
@@ -204,6 +306,9 @@ export class NfseFormComponent {
   }
 
   get acoesModalEmissao(): PoModalAction {
+    if (this.modoVisualizacao) {
+      return { label: 'Fechar', action: () => this.modalEmissao?.close() };
+    }
     return { label: 'Emitir NFS-e', action: () => this.emitirNfse() };
   }
 
@@ -239,46 +344,102 @@ export class NfseFormComponent {
   emitirNfse() {
     if (this.nfseForm.invalid) {
       this.nfseForm.markAllAsTouched();
+      this.poNotification.warning('Preencha os campos obrigatórios para emitir a NFS-e.');
       return;
     }
     this.carregando.set(true);
     const form = this.nfseForm.value;
-    const body = {
+    const ehCnpj = (v: string) => v && v.replace(/\D/g, '').length > 11;
+    const cpfCnpjPrest = form.prestadorCpfCnpj?.replace(/\D/g, '') || '';
+    const cpfCnpjTom = form.tomadorCpfCnpj?.replace(/\D/g, '') || '';
+    const cpfCnpjInterm = form.intermCpfCnpj?.replace(/\D/g, '') || '';
+
+    const tomarNumero = (v: any) => (v !== null && v !== undefined && v !== '') ? v : undefined;
+
+    const body: any = {
       provedor: 'padrao',
       ambiente: 'homologacao',
       referencia: `NFS-${Date.now()}`,
       infDPS: {
+        dhEmi: new Date().toISOString(),
         prest: {
-          CPF: form.prestadorCpfCnpj.length <= 11 ? form.prestadorCpfCnpj : undefined,
-          CNPJ: form.prestadorCpfCnpj.length > 11 ? form.prestadorCpfCnpj : undefined
+          CNPJ: ehCnpj(cpfCnpjPrest) ? cpfCnpjPrest : undefined,
+          CPF: !ehCnpj(cpfCnpjPrest) ? cpfCnpjPrest : undefined
         },
         toma: {
-          CNPJ: form.tomadorCpfCnpj.length > 11 ? form.tomadorCpfCnpj : undefined,
-          CPF: form.tomadorCpfCnpj.length <= 11 ? form.tomadorCpfCnpj : undefined,
+          CNPJ: ehCnpj(cpfCnpjTom) ? cpfCnpjTom : undefined,
+          CPF: !ehCnpj(cpfCnpjTom) ? cpfCnpjTom : undefined,
+          NIF: tomarNumero(form.tomadorNif),
           xNome: form.tomadorNome,
+          fone: tomarNumero(form.tomadorTelefone),
+          email: tomarNumero(form.tomadorEmail),
+          IM: tomarNumero(form.tomadorInscricaoMunicipal),
+          IE: tomarNumero(form.tomadorInscricaoEstadual),
+          CAEPF: tomarNumero(form.tomadorCaepf),
           end: {
-            endNac: { cMun: '3550308', CEP: form.tomadorCep },
-            xLgr: form.tomadorLogradouro,
-            nro: form.tomadorNumero,
-            xBairro: form.tomadorBairro
+            endNac: {
+              cMun: tomarNumero(form.tomadorCodigoMunicipio) || undefined,
+              CEP: form.tomadorCep?.replace(/\D/g, '') || undefined
+            },
+            xLgr: tomarNumero(form.tomadorLogradouro),
+            nro: tomarNumero(form.tomadorNumero),
+            xCpl: tomarNumero(form.tomadorComplemento),
+            xBairro: tomarNumero(form.tomadorBairro)
           }
         },
         serv: {
-          cServ: { CNAE: form.servicoCodigoCnae, xDescServ: form.servicoDescricao }
+          cServ: {
+            cTribNac: form.servicoCodigoTributacao,
+            cTribMun: tomarNumero(form.servicoCodigoTributacaoMunicipal),
+            CNAE: tomarNumero(form.servicoCodigoCnae),
+            xDescServ: form.servicoDescricao,
+            cNBS: tomarNumero(form.servicoNbs),
+            cNatOp: tomarNumero(form.servicoNaturezaOperacao),
+            cSitTrib: tomarNumero(form.servicoSituacaoTributaria)
+          }
         },
         valores: {
-          vServPrest: { vServ: form.servicoQuantidade * form.servicoValorUnitario },
+          vServPrest: { vServ: +(form.servicoQuantidade * form.servicoValorUnitario).toFixed(2) },
           trib: {
             tribMun: {
-              tribISSQN: 1,
+              tribISSQN: form.tributacaoIssqn || 1,
+              tpRetISSQN: form.retencaoIssqn || 1,
               pAliq: form.servicoAliquotaIss || 0,
-              vISSQN: +(form.servicoQuantidade * form.servicoValorUnitario * (form.servicoAliquotaIss || 0) / 100).toFixed(2),
-              cLocIncid: '3550308'
+              cLocIncid: form.localIncidencia || '3550308'
             }
           }
         }
       }
     };
+
+    if (form.valorDescontoIncondicionado) body.infDPS.valores.vDescCondIncond = { vDescIncond: +form.valorDescontoIncondicionado };
+    if (form.valorDescontoCondicionado) {
+      body.infDPS.valores.vDescCondIncond = { ...(body.infDPS.valores.vDescCondIncond || {}), vDescCond: +form.valorDescontoCondicionado };
+    }
+    if (form.deducaoValor || form.deducaoPercentual) {
+      body.infDPS.valores.vDedRed = {
+        vDR: tomarNumero(form.deducaoValor),
+        pDR: tomarNumero(form.deducaoPercentual)
+      };
+    }
+    if (form.retencaoCp || form.retencaoIrrf || form.retencaoCsll) {
+      body.infDPS.valores.trib.tribFed = {
+        vRetCP: tomarNumero(form.retencaoCp),
+        vRetIRRF: tomarNumero(form.retencaoIrrf),
+        vRetCSLL: tomarNumero(form.retencaoCsll)
+      };
+    }
+    if (form.valorBaseCalculo) body.infDPS.valores.trib.tribMun.vBC = +form.valorBaseCalculo;
+    if (form.valorIss) body.infDPS.valores.trib.tribMun.vISSQN = +form.valorIss;
+    if (form.valorLiquido) body.infDPS.valores.trib.tribMun.vLiq = +form.valorLiquido;
+    if (cpfCnpjInterm) {
+      body.infDPS.interm = {
+        CNPJ: ehCnpj(cpfCnpjInterm) ? cpfCnpjInterm : undefined,
+        CPF: !ehCnpj(cpfCnpjInterm) ? cpfCnpjInterm : undefined,
+        xNome: tomarNumero(form.intermNome)
+      };
+    }
+
     this.nfseService.emitirNfse(body).subscribe({
       next: (response: any) => {
         this.carregando.set(false);
@@ -312,10 +473,10 @@ export class NfseFormComponent {
   }
 
   acoesPrincipais(): PoPageAction[] {
-    return [{ label: 'Emitir NFS-e', icon: 'po-icon-ok', action: () => this.modalEmissao?.open() }];
+    return [{ label: 'Emitir NFS-e', icon: 'an-plus', action: () => this.abrirEmissao() }];
   }
 
   acoesSecundarias(): PoPageAction[] {
-    return [{ label: 'Nova Nota', icon: 'po-icon-plus', action: () => this.incluirNota() }];
+    return [{ label: 'Nova Nota', icon: 'an-file-plus', action: () => this.incluirNota() }];
   }
 }

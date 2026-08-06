@@ -34,3 +34,17 @@
 .modal-text {
   margin-bottom: 16px;
 }
+.paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 0 8px;
+}
+.paginacao-info {
+  font-size: 14px;
+  font-weight: 600;
+  color: #404040;
+  min-width: 130px;
+  text-align: center;
+}
