@@ -1,4 +1,19 @@
 <po-page [p-title]="'Emissão de NFS-e'" [p-actions]="acoesPrincipais()" [p-secondary-actions]="acoesSecundarias()">
+  <div class="form-section listagem">
+    <h3 class="section-title">Notas Fiscais Emitidas</h3>
+    <po-table
+      [p-items]="notas"
+      [p-columns]="colunas"
+      [p-actions]="acoesNota"
+      [p-loading]="carregandoLista()"
+      [p-striped]="true"
+      [p-show-more]="true"
+      [p-total-items]="totalNotas"
+      (p-show-more)="carregarMais()"
+      p-text-wrap>
+    </po-table>
+  </div>
+
   <form [formGroup]="nfseForm" class="nfse-form">
     <div class="form-section">
       <h3 class="section-title">Dados do Prestador</h3>
@@ -44,4 +59,16 @@
       </div>
     </div>
   </form>
+
+  <po-modal
+    #modalExclusao
+    [p-title]="'Excluir Nota Fiscal'"
+    [p-primary-action]="confirmarExclusaoAction"
+    [p-secondary-action]="cancelarExclusaoAction">
+    <p class="modal-text">
+      Confirmar exclusão (cancelamento) da nota
+      <strong>{{ notaSelecionada?.referencia || notaSelecionada?.id }}</strong>?
+    </p>
+    <po-input name="motivoExclusao" label="Motivo (opcional)" p-placeholder="Cancelamento solicitado pelo usuário" [(ngModel)]="motivoExclusao"></po-input>
+  </po-modal>
 </po-page>

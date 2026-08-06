@@ -1,11 +1,7 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
-export interface AuthToken {
-  access_token: string;
-  expires_in: number;
-}
+import { AuthService } from './auth.service';
 
 export interface NfseBody {
   provedor?: string;
@@ -21,34 +17,12 @@ export interface NfseBody {
 
 @Injectable({ providedIn: 'root' })
 export class NfseService {
-  private readonly authUrl = 'https://auth.acbr.api.br/realms/ACBrAPI/protocol/openid-connect/token';
   private readonly apiUrl = 'https://hom.acbr.api.br';
-  private clientId = '1l7JPNYuvVqpJUtGW1Zi';
-  private clientSecret = 'bINzBI5iyXU3kYu0BdhWY2wrDEkJQUCJ';
-  private tokenSignal = signal<string | null>(null);
 
-  constructor(private http: HttpClient) {}
-
-  setCredentials(clientId: string, clientSecret: string) {
-    this.clientId = clientId;
-    this.clientSecret = clientSecret;
-  }
-
-  getAuthToken(): Observable<AuthToken> {
-    const params = new HttpParams()
-      .set('grant_type', 'client_credentials')
-      .set('client_id', this.clientId)
-      .set('client_secret', this.clientSecret)
-      .set('scope', 'empresa nfse');
-    return this.http.post<AuthToken>(this.authUrl, params.toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    });
-  }
-
-  setToken(token: string) { this.tokenSignal.set(token); }
+  constructor(private http: HttpClient, private auth: AuthService) {}
 
   private getHeaders() {
-    const token = this.tokenSignal();
+    const token = this.auth.token;
     return {
       headers: {
         'Content-Type': 'application/json',
@@ -61,8 +35,16 @@ export class NfseService {
     return this.http.post(`${this.apiUrl}/nfse/dps`, body, this.getHeaders());
   }
 
-  listarNfse(cpfCnpj: string, ambiente: string = 'homologacao'): Observable<any> {
-    const params = new HttpParams().set('cpf_cnpj', cpfCnpj).set('ambiente', ambiente);
+  listarNfse(cpfCnpj: string, ambiente: string = 'homologacao', top: number = 10, skip: number = 0, referencia?: string, chave?: string, serie?: string): Observable<any> {
+    let params = new HttpParams()
+      .set('cpf_cnpj', cpfCnpj)
+      .set('ambiente', ambiente)
+      .set('$top', top)
+      .set('$skip', skip)
+      .set('$inlinecount', 'true');
+    if (referencia) params = params.set('referencia', referencia);
+    if (chave) params = params.set('chave', chave);
+    if (serie) params = params.set('serie', serie);
     return this.http.get(`${this.apiUrl}/nfse`, { ...this.getHeaders(), params });
   }
 
@@ -70,8 +52,10 @@ export class NfseService {
     return this.http.get(`${this.apiUrl}/nfse/${id}`, this.getHeaders());
   }
 
-  cancelarNfse(id: string, motivo: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/nfse/${id}/cancelamento`, { motivo }, this.getHeaders());
+  cancelarNfse(id: string, motivo: string, codigo?: string): Observable<any> {
+    const body: any = { motivo };
+    if (codigo) body.codigo = codigo;
+    return this.http.post(`${this.apiUrl}/nfse/${id}/cancelamento`, body, this.getHeaders());
   }
 
   baixarPdfNfse(id: string): Observable<Blob> {
@@ -109,7 +93,7 @@ export class NfseService {
     const formData = new FormData();
     formData.append('Input', arquivo);
     return this.http.put(`${this.apiUrl}/empresas/${cpfCnpj}/certificado/upload`, formData, {
-      headers: { 'Authorization': this.tokenSignal() ? `Bearer ${this.tokenSignal()}` : '' }
+      headers: { 'Authorization': this.auth.token ? `Bearer ${this.auth.token}` : '' }
     });
   }
 

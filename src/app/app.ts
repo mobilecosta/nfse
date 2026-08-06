@@ -1,14 +1,17 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { PoModule } from '@po-ui/ng-components';
+import { RouterOutlet, Router } from '@angular/router';
+import { PoModule, PoToolbarAction } from '@po-ui/ng-components';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, PoModule],
+  imports: [RouterOutlet, PoModule],
   template: `
-    <po-toolbar [p-title]="'Sistema de Emissão de NFS-e'"></po-toolbar>
-    <po-menu [p-menus]="menus"></po-menu>
+    @if (auth.autenticado) {
+      <po-toolbar [p-title]="'Sistema de Emissão de NFS-e'" [p-actions]="acoesToolbar" p-actions-icon="po-icon-user"></po-toolbar>
+      <po-menu [p-menus]="menus"></po-menu>
+    }
     <div class="conteudo">
       <router-outlet></router-outlet>
     </div>
@@ -21,4 +24,15 @@ export class App {
     { label: 'Emissão de NFS-e', link: '/' },
     { label: 'Certificado Digital', link: '/certificado' }
   ];
+
+  protected readonly acoesToolbar: PoToolbarAction[] = [
+    { label: 'Sair', icon: 'po-icon-exit', action: () => this.sair() }
+  ];
+
+  constructor(public auth: AuthService, private router: Router) {}
+
+  sair() {
+    this.auth.logout();
+    this.router.navigate(['/login']);
+  }
 }

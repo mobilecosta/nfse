@@ -28,3 +28,9 @@
   flex: 1;
   min-width: 200px;
 }
+.listagem {
+  overflow: hidden;
+}
+.modal-text {
+  margin-bottom: 16px;
+}

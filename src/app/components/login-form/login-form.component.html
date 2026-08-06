@@ -1,0 +1,11 @@
+<po-page [p-title]="'Acesso ao Sistema'">
+  <div class="login-box">
+    <h3 class="section-title">Autenticação ACBr API</h3>
+    <form [formGroup]="loginForm" class="login-form">
+      <po-input name="clientId" label="Client ID" formControlName="clientId" [p-required]="true"></po-input>
+      <po-input name="clientSecret" label="Client Secret" p-type="password" formControlName="clientSecret" [p-required]="true"></po-input>
+      <po-alert *ngIf="erro()" p-type="danger" [p-message]="erro()"></po-alert>
+      <po-button p-label="Entrar" p-kind="primary" [p-loading]="carregando()" (p-click)="entrar()"></po-button>
+    </form>
+  </div>
+</po-page>
