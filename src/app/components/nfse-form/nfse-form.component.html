@@ -1,4 +1,4 @@
-<po-page [p-title]="'Emissão de NFS-e'" [p-actions]="acoesPrincipais()" [p-secondary-actions]="acoesSecundarias()">
+<po-page-default [p-title]="'Emissão de NFS-e'" [p-actions]="acoesPrincipais()" [p-secondary-actions]="acoesSecundarias()">
   <div class="form-section listagem">
     <h3 class="section-title">Notas Fiscais Emitidas</h3>
     <po-table
@@ -71,4 +71,4 @@
     </p>
     <po-input name="motivoExclusao" label="Motivo (opcional)" p-placeholder="Cancelamento solicitado pelo usuário" [(ngModel)]="motivoExclusao"></po-input>
   </po-modal>
-</po-page>
+</po-page-default>

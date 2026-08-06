@@ -9,14 +9,15 @@ import { AuthService } from './services/auth.service';
   imports: [RouterOutlet, PoModule],
   template: `
     @if (auth.autenticado) {
-      <po-toolbar [p-title]="'Sistema de Emissão de NFS-e'" [p-actions]="acoesToolbar" p-actions-icon="po-icon-user"></po-toolbar>
-      <po-menu [p-menus]="menus"></po-menu>
-    }
-    <div class="conteudo">
+      <div class="po-wrapper">
+        <po-toolbar [p-title]="'Sistema de Emissão de NFS-e'" [p-actions]="acoesToolbar" p-actions-icon="po-icon-user"></po-toolbar>
+        <po-menu [p-menus]="menus"></po-menu>
+        <router-outlet></router-outlet>
+      </div>
+    } @else {
       <router-outlet></router-outlet>
-    </div>
-  `,
-  styles: [':host { display: block; height: 100%; }', '.conteudo { padding: 1rem; }']
+    }
+  `
 })
 export class App {
   protected readonly title = signal('nfse');

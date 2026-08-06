@@ -1,6 +1,7 @@
 import { Component, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { PoModule } from '@po-ui/ng-components';
 import { NfseService } from '../../services/nfse.service';
 
 @Component({
@@ -8,7 +9,7 @@ import { NfseService } from '../../services/nfse.service';
   templateUrl: './certificado-form.component.html',
   styleUrls: ['./certificado-form.component.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule, PoModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class CertificadoFormComponent {

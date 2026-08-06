@@ -1,4 +1,4 @@
-<po-page [p-title]="'Configuração do Certificado Digital'" p-breadcrumb>
+<po-page-default [p-title]="'Configuração do Certificado Digital'">
   <po-breadcrumb [p-items]="[{ label: 'Home', link: '/' }, { label: 'Certificado' }]"></po-breadcrumb>
 
   <div *ngIf="carregando()" class="carregando">
@@ -41,4 +41,4 @@
       <po-button p-label="Salvar configuração" [p-disabled]="carregando()" (p-click)="salvarConfigNfse()"></po-button>
     </div>
   </form>
-</po-page>
+</po-page-default>

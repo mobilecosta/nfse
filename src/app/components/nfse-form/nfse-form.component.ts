@@ -1,7 +1,7 @@
 import { Component, signal, ViewChild, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { PoPageAction, PoNotificationService, PoTableAction, PoTableColumn, PoModalComponent, PoModalAction } from '@po-ui/ng-components';
+import { PoModule, PoPageAction, PoNotificationService, PoTableAction, PoTableColumn, PoModalComponent, PoModalAction } from '@po-ui/ng-components';
 import { NfseService } from '../../services/nfse.service';
 
 @Component({
@@ -9,7 +9,7 @@ import { NfseService } from '../../services/nfse.service';
   templateUrl: './nfse-form.component.html',
   styleUrls: ['./nfse-form.component.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, FormsModule, CommonModule],
+  imports: [ReactiveFormsModule, FormsModule, CommonModule, PoModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class NfseFormComponent {
