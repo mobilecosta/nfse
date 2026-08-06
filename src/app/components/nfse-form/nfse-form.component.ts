@@ -22,7 +22,7 @@ export class NfseFormComponent {
     private router: Router
   ) {
     this.nfseForm = this.fb.group({
-      prestadorCpfCnpj: ['', [Validators.required]],
+      prestadorCpfCnpj: ['66549275000197', [Validators.required]],
       prestadorNome: ['', Validators.required],
       prestadorEmail: [''],
       prestadorTelefone: [''],
@@ -73,7 +73,15 @@ export class NfseFormComponent {
           cServ: { CNAE: form.servicoCodigoCnae, xDescServ: form.servicoDescricao }
         },
         valores: {
-          vServPrest: { vServ: form.servicoQuantidade * form.servicoValorUnitario }
+          vServPrest: { vServ: form.servicoQuantidade * form.servicoValorUnitario },
+          trib: {
+            tribMun: {
+              tribISSQN: 1,
+              pAliq: form.servicoAliquotaIss || 0,
+              vISSQN: +(form.servicoQuantidade * form.servicoValorUnitario * (form.servicoAliquotaIss || 0) / 100).toFixed(2),
+              cLocIncid: '3550308'
+            }
+          }
         }
       }
     };

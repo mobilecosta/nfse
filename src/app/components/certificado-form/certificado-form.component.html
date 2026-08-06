@@ -1,0 +1,44 @@
+<po-page [p-title]="'Configuração do Certificado Digital'" p-breadcrumb>
+  <po-breadcrumb [p-items]="[{ label: 'Home', link: '/' }, { label: 'Certificado' }]"></po-breadcrumb>
+
+  <div *ngIf="carregando()" class="carregando">
+    <po-loading-overlay [p-loading]="true" [p-text]="'Processando...'"></po-loading-overlay>
+  </div>
+
+  <po-alert *ngIf="mensagem()" p-type="success" [p-message]="mensagem()" (p-close)="mensagem.set('')"></po-alert>
+  <po-alert *ngIf="erro()" p-type="danger" [p-message]="erro()" (p-close)="erro.set('')"></po-alert>
+
+  <form [formGroup]="certForm" class="cert-form">
+    <h3 class="section-title">Dados da Empresa</h3>
+    <div class="form-row">
+      <po-input name="cpfCnpj" label="CPF/CNPJ" formControlName="cpfCnpj"></po-input>
+      <po-button p-label="Consultar" [p-disabled]="carregando()" (p-click)="consultarCertificado()"></po-button>
+    </div>
+
+    <div *ngIf="certificadoAtual()" class="cert-info">
+      <po-info [p-label]="'Emissor'" [p-value]="certificadoAtual()?.issuer_name"></po-info>
+      <po-info [p-label]="'Titular'" [p-value]="certificadoAtual()?.subject_name"></po-info>
+      <po-info [p-label]="'Série'" [p-value]="certificadoAtual()?.serial_number"></po-info>
+      <po-info [p-label]="'Válido até'" [p-value]="certificadoAtual()?.not_valid_after"></po-info>
+      <po-info [p-label]="'Razão Social'" [p-value]="certificadoAtual()?.nome_razao_social"></po-info>
+      <po-button p-label="Excluir certificado" p-kind="danger" (p-click)="excluirCertificado()"></po-button>
+    </div>
+
+    <h3 class="section-title">Upload do Certificado (PFX)</h3>
+    <div class="form-row">
+      <po-input name="password" label="Senha do Certificado" p-type="password" formControlName="password"></po-input>
+      <input type="file" accept=".pfx,.p12" class="file-input" (change)="onArquivoSelecionado($event)" />
+    </div>
+    <div class="form-row">
+      <po-button p-label="Enviar certificado" p-kind="primary" [p-disabled]="carregando()" (p-click)="uploadCertificado()"></po-button>
+    </div>
+
+    <h3 class="section-title">Configuração NFS-e</h3>
+    <div class="form-row">
+      <po-input name="serieRps" label="Série RPS" formControlName="serieRps"></po-input>
+      <po-number name="loteRps" label="Lote" formControlName="loteRps"></po-number>
+      <po-number name="numeroRps" label="Número" formControlName="numeroRps"></po-number>
+      <po-button p-label="Salvar configuração" [p-disabled]="carregando()" (p-click)="salvarConfigNfse()"></po-button>
+    </div>
+  </form>
+</po-page>

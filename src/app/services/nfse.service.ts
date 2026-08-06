@@ -23,8 +23,8 @@ export interface NfseBody {
 export class NfseService {
   private readonly authUrl = 'https://auth.acbr.api.br/realms/ACBrAPI/protocol/openid-connect/token';
   private readonly apiUrl = 'https://hom.acbr.api.br';
-  private clientId = '';
-  private clientSecret = '';
+  private clientId = '1l7JPNYuvVqpJUtGW1Zi';
+  private clientSecret = 'bINzBI5iyXU3kYu0BdhWY2wrDEkJQUCJ';
   private tokenSignal = signal<string | null>(null);
 
   constructor(private http: HttpClient) {}
@@ -91,5 +91,37 @@ export class NfseService {
 
   consultarMetadados(codigoIbge: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/nfse/cidades/${codigoIbge}`, this.getHeaders());
+  }
+
+  consultarEmpresa(cpfCnpj: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/empresas/${cpfCnpj}`, this.getHeaders());
+  }
+
+  consultarCertificado(cpfCnpj: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/empresas/${cpfCnpj}/certificado`, this.getHeaders());
+  }
+
+  cadastrarCertificado(cpfCnpj: string, certificadoBase64: string, password: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/empresas/${cpfCnpj}/certificado`, { certificado: certificadoBase64, password }, this.getHeaders());
+  }
+
+  uploadCertificado(cpfCnpj: string, arquivo: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('Input', arquivo);
+    return this.http.put(`${this.apiUrl}/empresas/${cpfCnpj}/certificado/upload`, formData, {
+      headers: { 'Authorization': this.tokenSignal() ? `Bearer ${this.tokenSignal()}` : '' }
+    });
+  }
+
+  excluirCertificado(cpfCnpj: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/empresas/${cpfCnpj}/certificado`, this.getHeaders());
+  }
+
+  consultarConfigNfse(cpfCnpj: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/empresas/${cpfCnpj}/nfse`, this.getHeaders());
+  }
+
+  salvarConfigNfse(cpfCnpj: string, config: any): Observable<any> {
+    return this.http.put(`${this.apiUrl}/empresas/${cpfCnpj}/nfse`, config, this.getHeaders());
   }
 }
