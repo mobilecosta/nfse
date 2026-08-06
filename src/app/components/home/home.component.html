@@ -1,0 +1,30 @@
+<po-page-default p-title="Início" p-breadcrumb-title="Início">
+  <div class="home-container">
+    <div class="boas-vindas">
+      <h2>Bem-vindo, {{ auth.user?.name || auth.user?.email }}</h2>
+      <p>Acompanhe abaixo o resumo do sistema.</p>
+    </div>
+
+    <div class="cards-grid">
+      <po-widget [p-title]="'Usuários Cadastrados'" [p-primary]="true" p-size="large">
+        <div class="card-body">
+          <span class="card-icon an an-users-three"></span>
+          <span class="card-valor">{{ usuarios() }}</span>
+          <span class="card-label">usuários</span>
+        </div>
+      </po-widget>
+
+      <po-widget [p-title]="'Notas Fiscais Emitidas'">
+        <div class="card-body">
+          <span class="card-icon an an-file-doc"></span>
+          <span class="card-valor">{{ notas() }}</span>
+          <span class="card-label">notas emitidas</span>
+        </div>
+      </po-widget>
+    </div>
+
+    @if (carregando()) {
+      <po-loading-overlay></po-loading-overlay>
+    }
+  </div>
+</po-page-default>

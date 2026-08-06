@@ -19,7 +19,8 @@ interface AuthState {
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly loginUrl = 'https://finance-backend-mobile.vercel.app/api/auth/signin';
+  private readonly apiUrl = 'https://finance-backend-mobile.vercel.app/api';
+  private readonly loginUrl = `${this.apiUrl}/auth/signin`;
   private readonly storageKey = 'acbr_auth_state';
   private stateSignal = signal<AuthState | null>(this.loadState());
 
@@ -35,6 +36,12 @@ export class AuthService {
         localStorage.setItem(this.storageKey, JSON.stringify(state));
       })
     );
+  }
+
+  listarUsuarios(): Observable<{ count: number; users: any[] }> {
+    return this.http.get<{ count: number; users: any[] }>(`${this.apiUrl}/auth/users`, {
+      headers: { Authorization: `Bearer ${this.token}` }
+    });
   }
 
   logout() {

@@ -34,7 +34,11 @@ export class LoginFormComponent {
     private auth: AuthService,
     private nfseService: NfseService,
     private router: Router
-  ) {}
+  ) {
+    if (this.auth.autenticado) {
+      this.router.navigate(['/']);
+    }
+  }
 
   entrar(dados: PoPageLogin) {
     this.carregando.set(true);
@@ -42,18 +46,11 @@ export class LoginFormComponent {
     this.passwordErrors = [];
     this.auth.autenticar(dados.login, dados.password).subscribe({
       next: () => {
-        this.nfseService.autenticarAcbr().subscribe({
-          next: (res: any) => {
-            this.nfseService.setTokenAcbr(res.access_token);
-            this.carregando.set(false);
-            this.router.navigate(['/']);
-          },
-          error: (err: any) => {
-            this.carregando.set(false);
-            this.loginErrors = ['Usuário autenticado, mas falha ao configurar o serviço NFS-e.'];
-            console.error(err);
-          }
+        this.carregando.set(false);
+        this.nfseService.garantirTokenAcbr().subscribe({
+          error: (err: any) => console.error('Falha ao obter token ACBr:', err)
         });
+        this.router.navigate(['/']);
       },
       error: (error: any) => {
         this.carregando.set(false);

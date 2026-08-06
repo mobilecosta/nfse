@@ -1,0 +1,56 @@
+.home-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.boas-vindas {
+  background: #fff;
+  padding: 24px;
+  margin-bottom: 24px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.boas-vindas h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0c5da8;
+  margin: 0 0 8px 0;
+}
+
+.boas-vindas p {
+  margin: 0;
+  color: #4a4a4a;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+}
+
+.card-icon {
+  font-size: 40px;
+  color: #0c5da8;
+}
+
+.card-valor {
+  font-size: 48px;
+  font-weight: 700;
+  color: #0c5da8;
+  line-height: 1;
+}
+
+.card-label {
+  font-size: 14px;
+  color: #4a4a4a;
+}

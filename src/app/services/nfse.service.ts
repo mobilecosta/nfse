@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 export interface NfseBody {
   provedor?: string;
@@ -43,6 +43,18 @@ export class NfseService {
     return this.http.post(this.authUrl, params.toString(), {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
     });
+  }
+
+  garantirTokenAcbr(): Observable<any> {
+    if (this.tokenSignal()) {
+      return new Observable((observer) => {
+        observer.next({ access_token: this.tokenSignal() });
+        observer.complete();
+      });
+    }
+    return this.autenticarAcbr().pipe(
+      tap((res: any) => this.setTokenAcbr(res.access_token))
+    );
   }
 
   setTokenAcbr(token: string) { this.tokenSignal.set(token); }
