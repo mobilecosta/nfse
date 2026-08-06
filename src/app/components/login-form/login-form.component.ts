@@ -1,51 +1,65 @@
 import { Component, signal, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { PoPageLogin, PoPageLoginLiterals, PoPageLoginModule } from '@po-ui/ng-templates';
 import { AuthService } from '../../services/auth.service';
+import { NfseService } from '../../services/nfse.service';
 
 @Component({
   selector: 'app-login-form',
   templateUrl: './login-form.component.html',
-  styleUrls: ['./login-form.component.css'],
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [PoPageLoginModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class LoginFormComponent {
-  loginForm: FormGroup;
   carregando = signal(false);
-  erro = signal('');
+  loginErrors: string[] = [];
+  passwordErrors: string[] = [];
+
+  readonly literals: PoPageLoginLiterals = {
+    welcome: 'Boas-vindas',
+    loginPlaceholder: 'Digite seu e-mail',
+    loginLabel: 'E-mail',
+    loginHint: 'Caso não possua usuário entre em contato com o suporte',
+    passwordPlaceholder: 'Digite sua senha',
+    passwordLabel: 'Senha',
+    loginErrorPattern: 'Informe um e-mail válido',
+    passwordErrorPattern: 'Informe sua senha',
+    submitLabel: 'Entrar',
+    submittedLabel: 'Autenticando...',
+    rememberUser: 'Lembrar usuário'
+  };
 
   constructor(
-    private fb: FormBuilder,
     private auth: AuthService,
+    private nfseService: NfseService,
     private router: Router
-  ) {
-    this.loginForm = this.fb.group({
-      clientId: ['', Validators.required],
-      clientSecret: ['', Validators.required]
-    });
-  }
+  ) {}
 
-  get f() { return this.loginForm.controls; }
-
-  entrar() {
-    if (this.loginForm.invalid) {
-      this.loginForm.markAllAsTouched();
-      return;
-    }
+  entrar(dados: PoPageLogin) {
     this.carregando.set(true);
-    this.erro.set('');
-    const { clientId, clientSecret } = this.loginForm.value;
-    this.auth.autenticar(clientId, clientSecret).subscribe({
+    this.loginErrors = [];
+    this.passwordErrors = [];
+    this.auth.autenticar(dados.login, dados.password).subscribe({
       next: () => {
-        this.carregando.set(false);
-        this.router.navigate(['/']);
+        this.nfseService.autenticarAcbr().subscribe({
+          next: (res: any) => {
+            this.nfseService.setTokenAcbr(res.access_token);
+            this.carregando.set(false);
+            this.router.navigate(['/']);
+          },
+          error: (err: any) => {
+            this.carregando.set(false);
+            this.loginErrors = ['Usuário autenticado, mas falha ao configurar o serviço NFS-e.'];
+            console.error(err);
+          }
+        });
       },
       error: (error: any) => {
         this.carregando.set(false);
-        this.erro.set('Falha na autenticação: ' + (error.error?.error_description || error.error?.error || error.statusText));
+        const msg = error.error?.message || error.statusText || 'Falha na autenticação';
+        this.loginErrors = [msg];
+        this.passwordErrors = [];
       }
     });
   }

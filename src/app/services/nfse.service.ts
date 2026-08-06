@@ -1,7 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthService } from './auth.service';
 
 export interface NfseBody {
   provedor?: string;
@@ -17,12 +16,16 @@ export interface NfseBody {
 
 @Injectable({ providedIn: 'root' })
 export class NfseService {
+  private readonly authUrl = 'https://auth.acbr.api.br/realms/ACBrAPI/protocol/openid-connect/token';
   private readonly apiUrl = 'https://hom.acbr.api.br';
+  private readonly clientId = '1l7JPNYuvVqpJUtGW1Zi';
+  private readonly clientSecret = 'bINzBI5iyXU3kYu0BdhWY2wrDEkJQUCJ';
+  private readonly tokenSignal = signal<string | null>(null);
 
-  constructor(private http: HttpClient, private auth: AuthService) {}
+  constructor(private http: HttpClient) {}
 
   private getHeaders() {
-    const token = this.auth.token;
+    const token = this.tokenSignal();
     return {
       headers: {
         'Content-Type': 'application/json',
@@ -30,6 +33,21 @@ export class NfseService {
       }
     };
   }
+
+  autenticarAcbr(): Observable<any> {
+    const params = new HttpParams()
+      .set('grant_type', 'client_credentials')
+      .set('client_id', this.clientId)
+      .set('client_secret', this.clientSecret)
+      .set('scope', 'empresa nfse');
+    return this.http.post(this.authUrl, params.toString(), {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
+  }
+
+  setTokenAcbr(token: string) { this.tokenSignal.set(token); }
+
+  get tokenAcbr(): string { return this.tokenSignal() ?? ''; }
 
   emitirNfse(body: NfseBody): Observable<any> {
     return this.http.post(`${this.apiUrl}/nfse/dps`, body, this.getHeaders());
@@ -93,7 +111,7 @@ export class NfseService {
     const formData = new FormData();
     formData.append('Input', arquivo);
     return this.http.put(`${this.apiUrl}/empresas/${cpfCnpj}/certificado/upload`, formData, {
-      headers: { 'Authorization': this.auth.token ? `Bearer ${this.auth.token}` : '' }
+      headers: { 'Authorization': this.tokenAcbr ? `Bearer ${this.tokenAcbr}` : '' }
     });
   }
 

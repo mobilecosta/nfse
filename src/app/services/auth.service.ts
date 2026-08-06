@@ -1,21 +1,25 @@
 import { Injectable, signal } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
-export interface AuthToken {
-  access_token: string;
-  expires_in: number;
+interface LoginResponse {
+  token: string;
+  user: {
+    id: string;
+    email: string;
+    name: string | null;
+    createdAt?: string;
+  };
 }
 
 interface AuthState {
-  clientId: string;
-  clientSecret: string;
   token: string;
+  user: LoginResponse['user'];
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private readonly authUrl = 'https://auth.acbr.api.br/realms/ACBrAPI/protocol/openid-connect/token';
+  private readonly loginUrl = 'https://finance-backend-mobile.vercel.app/api/auth/signin';
   private readonly storageKey = 'acbr_auth_state';
   private stateSignal = signal<AuthState | null>(this.loadState());
 
@@ -23,17 +27,10 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  autenticar(clientId: string, clientSecret: string): Observable<AuthToken> {
-    const params = new HttpParams()
-      .set('grant_type', 'client_credentials')
-      .set('client_id', clientId)
-      .set('client_secret', clientSecret)
-      .set('scope', 'empresa nfse');
-    return this.http.post<AuthToken>(this.authUrl, params.toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    }).pipe(
+  autenticar(email: string, password: string): Observable<LoginResponse> {
+    return this.http.post<LoginResponse>(this.loginUrl, { email, password }).pipe(
       tap((res) => {
-        const state: AuthState = { clientId, clientSecret, token: res.access_token };
+        const state: AuthState = { token: res.token, user: res.user };
         this.stateSignal.set(state);
         localStorage.setItem(this.storageKey, JSON.stringify(state));
       })
@@ -47,9 +44,7 @@ export class AuthService {
 
   get token(): string { return this.stateSignal()?.token ?? ''; }
 
-  get clientId(): string { return this.stateSignal()?.clientId ?? ''; }
-
-  get clientSecret(): string { return this.stateSignal()?.clientSecret ?? ''; }
+  get user(): LoginResponse['user'] | null { return this.stateSignal()?.user ?? null; }
 
   get autenticado(): boolean { return !!this.stateSignal(); }
 
