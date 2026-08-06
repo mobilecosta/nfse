@@ -16,8 +16,7 @@ export interface NfseBody {
 
 @Injectable({ providedIn: 'root' })
 export class NfseService {
-  private readonly authUrl = 'https://auth.acbr.api.br/realms/ACBrAPI/protocol/openid-connect/token';
-  private readonly apiUrl = 'https://hom.acbr.api.br';
+  private readonly apiUrl = 'https://finance-backend-mobile.vercel.app/api/acbr';
   private readonly clientId = '1l7JPNYuvVqpJUtGW1Zi';
   private readonly clientSecret = 'bINzBI5iyXU3kYu0BdhWY2wrDEkJQUCJ';
   private readonly tokenSignal = signal<string | null>(null);
@@ -35,13 +34,9 @@ export class NfseService {
   }
 
   autenticarAcbr(): Observable<any> {
-    const params = new HttpParams()
-      .set('grant_type', 'client_credentials')
-      .set('client_id', this.clientId)
-      .set('client_secret', this.clientSecret)
-      .set('scope', 'empresa nfse');
-    return this.http.post(this.authUrl, params.toString(), {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    return this.http.post(`${this.apiUrl}/auth`, {
+      client_id: this.clientId,
+      client_secret: this.clientSecret
     });
   }
 
