@@ -24,6 +24,7 @@ export class NfseFormComponent {
   motivoExclusao = '';
 
   @ViewChild('modalExclusao') modalExclusao!: PoModalComponent;
+  @ViewChild('modalEmissao') modalEmissao!: PoModalComponent;
 
   readonly colunas: PoTableColumn[] = [
     { property: 'numero', label: 'Número' },
@@ -147,7 +148,7 @@ export class NfseFormComponent {
         this.carregando.set(false);
         this.preencherFormulario(detalhe);
         this.poNotification.information(`Dados da nota ${nota.id} carregados para visualização.`);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        this.modalEmissao?.open();
       },
       error: (error: any) => {
         this.carregando.set(false);
@@ -189,6 +190,14 @@ export class NfseFormComponent {
 
   get cancelarExclusaoAction(): PoModalAction {
     return { label: 'Cancelar', action: () => this.modalExclusao?.close() };
+  }
+
+  get acoesModalEmissao(): PoModalAction {
+    return { label: 'Emitir NFS-e', action: () => this.emitirNfse() };
+  }
+
+  get cancelarModalEmissaoAction(): PoModalAction {
+    return { label: 'Cancelar', action: () => this.modalEmissao?.close() };
   }
 
   iniciarExclusao(nota: any) {
@@ -262,6 +271,7 @@ export class NfseFormComponent {
     this.nfseService.emitirNfse(body).subscribe({
       next: (response: any) => {
         this.carregando.set(false);
+        this.modalEmissao?.close();
         this.poNotification.success('NFS-e emitida! ID: ' + response.id);
         this.listarNotas();
       },
@@ -291,7 +301,7 @@ export class NfseFormComponent {
   }
 
   acoesPrincipais(): PoPageAction[] {
-    return [{ label: 'Emitir NFS-e', icon: 'po-icon-ok', action: () => this.emitirNfse() }];
+    return [{ label: 'Emitir NFS-e', icon: 'po-icon-ok', action: () => this.modalEmissao?.open() }];
   }
 
   acoesSecundarias(): PoPageAction[] {
