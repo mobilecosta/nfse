@@ -236,23 +236,14 @@ export class NfseFormComponent {
   paginaAnterior() { this.irParaPagina(this.paginaAtual - 1); }
   paginaProxima() { this.irParaPagina(this.paginaAtual + 1); }
 
-  get iconeOrdenacaoNumero(): string {
-    if (this.ordenarPor !== 'numero') return 'an-sort';
-    return this.ordenarDirecao === 'asc' ? 'an-sort-ascending' : 'an-sort-descending';
-  }
+  readonly opcoesOrdenacao = [
+    { label: 'Número da nota', value: 'numero' },
+    { label: 'Data de emissão', value: 'data' }
+  ];
 
-  get iconeOrdenacaoData(): string {
-    if (this.ordenarPor !== 'data') return 'an-sort';
-    return this.ordenarDirecao === 'asc' ? 'an-sort-ascending' : 'an-sort-descending';
-  }
-
-  alternarOrdenacao(campo: 'numero' | 'data') {
-    if (this.ordenarPor === campo) {
-      this.ordenarDirecao = this.ordenarDirecao === 'asc' ? 'desc' : 'asc';
-    } else {
-      this.ordenarPor = campo;
-      this.ordenarDirecao = campo === 'data' ? 'desc' : 'asc';
-    }
+  aplicarOrdenacao(campo: any) {
+    this.ordenarPor = campo === 'numero' ? 'numero' : 'data';
+    this.ordenarDirecao = this.ordenarPor === 'data' ? 'desc' : 'asc';
     this.ordenarNotas();
   }
 

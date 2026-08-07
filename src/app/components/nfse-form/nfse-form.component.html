@@ -3,18 +3,12 @@
     <div class="lista-header">
       <h3 class="section-title">Notas Fiscais Emitidas</h3>
       <div class="lista-ordenacao">
-        <po-button
-          p-kind="secondary"
-          p-label="Ordenar por Número"
-          [p-icon]="iconeOrdenacaoNumero"
+        <po-select
+          p-label="Ordenar por"
+          [p-options]="opcoesOrdenacao"
+          [p-value]="ordenarPor"
           [p-disabled]="carregandoLista()"
-          (p-click)="alternarOrdenacao('numero')"></po-button>
-        <po-button
-          p-kind="secondary"
-          p-label="Ordenar por Data de Emissão"
-          [p-icon]="iconeOrdenacaoData"
-          [p-disabled]="carregandoLista()"
-          (p-click)="alternarOrdenacao('data')"></po-button>
+          (p-change)="aplicarOrdenacao($event)"></po-select>
       </div>
     </div>
     <po-table
