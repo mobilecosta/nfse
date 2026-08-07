@@ -11,7 +11,7 @@
   <form [formGroup]="certForm" class="cert-form">
     <h3 class="section-title">Dados da Empresa</h3>
     <div class="form-row">
-      <po-input name="cpfCnpj" label="CPF/CNPJ" formControlName="cpfCnpj"></po-input>
+      <po-input name="cpfCnpj" p-label="CPF/CNPJ" formControlName="cpfCnpj"></po-input>
       <po-button p-label="Consultar" [p-disabled]="carregando()" (p-click)="consultarCertificado()"></po-button>
     </div>
 
@@ -26,7 +26,7 @@
 
     <h3 class="section-title">Upload do Certificado (PFX)</h3>
     <div class="form-row">
-      <po-input name="password" label="Senha do Certificado" p-type="password" formControlName="password"></po-input>
+      <po-input name="password" p-label="Senha do Certificado" p-type="password" formControlName="password"></po-input>
       <input type="file" accept=".pfx,.p12" class="file-input" (change)="onArquivoSelecionado($event)" />
     </div>
     <div class="form-row">
@@ -35,9 +35,9 @@
 
     <h3 class="section-title">Configuração NFS-e</h3>
     <div class="form-row">
-      <po-input name="serieRps" label="Série RPS" formControlName="serieRps"></po-input>
-      <po-number name="loteRps" label="Lote" formControlName="loteRps"></po-number>
-      <po-number name="numeroRps" label="Número" formControlName="numeroRps"></po-number>
+      <po-input name="serieRps" p-label="Série RPS" formControlName="serieRps"></po-input>
+      <po-number name="loteRps" p-label="Lote" formControlName="loteRps"></po-number>
+      <po-number name="numeroRps" p-label="Número" formControlName="numeroRps"></po-number>
       <po-button p-label="Salvar configuração" [p-disabled]="carregando()" (p-click)="salvarConfigNfse()"></po-button>
     </div>
   </form>

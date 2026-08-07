@@ -19,7 +19,7 @@
   <po-modal
     #modalEmissao
     [p-title]="tituloModal"
-    p-size="large"
+    p-size="xl"
     [p-primary-action]="acoesModalEmissao"
     [p-secondary-action]="cancelarModalEmissaoAction"
     [p-loading]="carregando()">
@@ -29,42 +29,42 @@
           <div class="form-section">
             <h3 class="section-title">Dados do Prestador</h3>
             <div class="form-row">
-              <po-input name="prestadorCpfCnpj" label="CPF/CNPJ" p-required formControlName="prestadorCpfCnpj"></po-input>
+              <po-input name="prestadorCpfCnpj" p-label="CPF/CNPJ" p-required formControlName="prestadorCpfCnpj"></po-input>
             </div>
           </div>
           <div class="form-section">
             <h3 class="section-title">Dados do Tomador</h3>
             <div class="form-row">
-              <po-input name="tomadorCpfCnpj" label="CPF/CNPJ" p-required formControlName="tomadorCpfCnpj"></po-input>
-              <po-input name="tomadorNome" label="Nome/Razão Social" p-required formControlName="tomadorNome"></po-input>
+              <po-input name="tomadorCpfCnpj" p-label="CPF/CNPJ" p-required formControlName="tomadorCpfCnpj"></po-input>
+              <po-input name="tomadorNome" p-label="Nome/Razão Social" p-required formControlName="tomadorNome"></po-input>
             </div>
             <div class="form-row">
-              <po-input name="tomadorCep" label="CEP" formControlName="tomadorCep" (p-blur)="consultarCep()"></po-input>
-              <po-input name="tomadorLogradouro" label="Logradouro" formControlName="tomadorLogradouro"></po-input>
-              <po-input name="tomadorNumero" label="Número" formControlName="tomadorNumero"></po-input>
+              <po-input name="tomadorCep" p-label="CEP" formControlName="tomadorCep" (p-blur)="consultarCep()"></po-input>
+              <po-input name="tomadorLogradouro" p-label="Logradouro" formControlName="tomadorLogradouro"></po-input>
+              <po-input name="tomadorNumero" p-label="Número" formControlName="tomadorNumero"></po-input>
             </div>
             <div class="form-row">
-              <po-input name="tomadorBairro" label="Bairro" formControlName="tomadorBairro"></po-input>
-              <po-input name="tomadorCodigoMunicipio" label="Código IBGE (cMun)" formControlName="tomadorCodigoMunicipio"></po-input>
-              <po-input name="tomadorUf" label="UF" formControlName="tomadorUf"></po-input>
+              <po-input name="tomadorBairro" p-label="Bairro" formControlName="tomadorBairro"></po-input>
+              <po-input name="tomadorCodigoMunicipio" p-label="Código IBGE (cMun)" formControlName="tomadorCodigoMunicipio"></po-input>
+              <po-input name="tomadorUf" p-label="UF" formControlName="tomadorUf"></po-input>
             </div>
           </div>
           <div class="form-section">
             <h3 class="section-title">Dados do Serviço</h3>
             <div class="form-row">
-              <po-input name="servicoCodigoTributacao" label="Cód. Tributação Nacional" p-required formControlName="servicoCodigoTributacao"></po-input>
-              <po-input name="servicoCodigoCnae" label="CNAE" formControlName="servicoCodigoCnae"></po-input>
-              <po-input name="servicoQuantidade" label="Quantidade" p-required formControlName="servicoQuantidade"></po-input>
+              <po-input name="servicoCodigoTributacao" p-label="Cód. Tributação Nacional" p-required formControlName="servicoCodigoTributacao"></po-input>
+              <po-input name="servicoCodigoCnae" p-label="CNAE" formControlName="servicoCodigoCnae"></po-input>
+              <po-input name="servicoQuantidade" p-label="Quantidade" p-required formControlName="servicoQuantidade"></po-input>
             </div>
             <div class="form-row">
-              <po-textarea name="servicoDescricao" label="Descrição do Serviço" p-required formControlName="servicoDescricao" [p-rows]="3"></po-textarea>
+              <po-textarea name="servicoDescricao" p-label="Descrição do Serviço" p-required formControlName="servicoDescricao" [p-rows]="3"></po-textarea>
             </div>
             <div class="form-row">
-              <po-number name="servicoValorUnitario" label="Valor Unitário (R$)" p-required formControlName="servicoValorUnitario"></po-number>
-              <po-number name="servicoAliquotaIss" label="Alíquota ISS (%)" p-required formControlName="servicoAliquotaIss"></po-number>
-              <po-select name="tributacaoIssqn" label="Tributação ISSQN" p-required formControlName="tributacaoIssqn"
+              <po-number name="servicoValorUnitario" p-label="Valor Unitário (R$)" p-required formControlName="servicoValorUnitario"></po-number>
+              <po-number name="servicoAliquotaIss" p-label="Alíquota ISS (%)" p-required formControlName="servicoAliquotaIss"></po-number>
+              <po-select name="tributacaoIssqn" p-label="Tributação ISSQN" p-required formControlName="tributacaoIssqn"
                 [p-options]="[ {label: '1 - Operação tributável', value: 1}, {label: '2 - Imunidade', value: 2}, {label: '3 - Exportação de serviço', value: 3}, {label: '4 - Não incidência', value: 4} ]"></po-select>
-              <po-input name="localIncidencia" label="Cód. Município Incidência (cLocIncid)" formControlName="localIncidencia"></po-input>
+              <po-input name="localIncidencia" p-label="Cód. Município Incidência (cLocIncid)" formControlName="localIncidencia"></po-input>
             </div>
           </div>
         </po-tab>
@@ -72,23 +72,23 @@
           <div class="form-section">
             <h3 class="section-title">Dados Cadastrais do Prestador</h3>
             <div class="form-row">
-              <po-input name="prestadorNome" label="Nome/Razão Social" formControlName="prestadorNome"></po-input>
-              <po-input name="prestadorInscricaoMunicipal" label="Inscrição Municipal" formControlName="prestadorInscricaoMunicipal"></po-input>
+              <po-input name="prestadorNome" p-label="Nome/Razão Social" formControlName="prestadorNome"></po-input>
+              <po-input name="prestadorInscricaoMunicipal" p-label="Inscrição Municipal" formControlName="prestadorInscricaoMunicipal"></po-input>
             </div>
             <div class="form-row">
-              <po-input name="prestadorEmail" label="E-mail" formControlName="prestadorEmail"></po-input>
-              <po-input name="prestadorTelefone" label="Telefone" formControlName="prestadorTelefone"></po-input>
+              <po-input name="prestadorEmail" p-label="E-mail" formControlName="prestadorEmail"></po-input>
+              <po-input name="prestadorTelefone" p-label="Telefone" formControlName="prestadorTelefone"></po-input>
             </div>
             <div class="form-row">
-              <po-input name="prestadorCep" label="CEP" formControlName="prestadorCep"></po-input>
-              <po-input name="prestadorLogradouro" label="Logradouro" formControlName="prestadorLogradouro"></po-input>
-              <po-input name="prestadorNumero" label="Número" formControlName="prestadorNumero"></po-input>
+              <po-input name="prestadorCep" p-label="CEP" formControlName="prestadorCep"></po-input>
+              <po-input name="prestadorLogradouro" p-label="Logradouro" formControlName="prestadorLogradouro"></po-input>
+              <po-input name="prestadorNumero" p-label="Número" formControlName="prestadorNumero"></po-input>
             </div>
             <div class="form-row">
-              <po-input name="prestadorComplemento" label="Complemento" formControlName="prestadorComplemento"></po-input>
-              <po-input name="prestadorBairro" label="Bairro" formControlName="prestadorBairro"></po-input>
-              <po-input name="prestadorCidade" label="Cidade" formControlName="prestadorCidade"></po-input>
-              <po-input name="prestadorUf" label="UF" formControlName="prestadorUf"></po-input>
+              <po-input name="prestadorComplemento" p-label="Complemento" formControlName="prestadorComplemento"></po-input>
+              <po-input name="prestadorBairro" p-label="Bairro" formControlName="prestadorBairro"></po-input>
+              <po-input name="prestadorCidade" p-label="Cidade" formControlName="prestadorCidade"></po-input>
+              <po-input name="prestadorUf" p-label="UF" formControlName="prestadorUf"></po-input>
             </div>
           </div>
         </po-tab>
@@ -96,21 +96,21 @@
           <div class="form-section">
             <h3 class="section-title">Dados Complementares do Tomador</h3>
             <div class="form-row">
-              <po-input name="tomadorEmail" label="E-mail" formControlName="tomadorEmail"></po-input>
-              <po-input name="tomadorTelefone" label="Telefone" formControlName="tomadorTelefone"></po-input>
-              <po-input name="tomadorComplemento" label="Complemento" formControlName="tomadorComplemento"></po-input>
+              <po-input name="tomadorEmail" p-label="E-mail" formControlName="tomadorEmail"></po-input>
+              <po-input name="tomadorTelefone" p-label="Telefone" formControlName="tomadorTelefone"></po-input>
+              <po-input name="tomadorComplemento" p-label="Complemento" formControlName="tomadorComplemento"></po-input>
             </div>
             <div class="form-row">
-              <po-input name="tomadorInscricaoMunicipal" label="Inscrição Municipal" formControlName="tomadorInscricaoMunicipal"></po-input>
-              <po-input name="tomadorInscricaoEstadual" label="Inscrição Estadual" formControlName="tomadorInscricaoEstadual"></po-input>
+              <po-input name="tomadorInscricaoMunicipal" p-label="Inscrição Municipal" formControlName="tomadorInscricaoMunicipal"></po-input>
+              <po-input name="tomadorInscricaoEstadual" p-label="Inscrição Estadual" formControlName="tomadorInscricaoEstadual"></po-input>
             </div>
             <div class="form-row">
-              <po-input name="tomadorNif" label="NIF (exterior)" formControlName="tomadorNif"></po-input>
-              <po-input name="tomadorCaepf" label="CAEPF" formControlName="tomadorCaepf"></po-input>
+              <po-input name="tomadorNif" p-label="NIF (exterior)" formControlName="tomadorNif"></po-input>
+              <po-input name="tomadorCaepf" p-label="CAEPF" formControlName="tomadorCaepf"></po-input>
             </div>
             <div class="form-row">
-              <po-input name="intermCpfCnpj" label="Intermediário CPF/CNPJ" formControlName="intermCpfCnpj"></po-input>
-              <po-input name="intermNome" label="Intermediário Nome" formControlName="intermNome"></po-input>
+              <po-input name="intermCpfCnpj" p-label="Intermediário CPF/CNPJ" formControlName="intermCpfCnpj"></po-input>
+              <po-input name="intermNome" p-label="Intermediário Nome" formControlName="intermNome"></po-input>
             </div>
           </div>
         </po-tab>
@@ -118,15 +118,15 @@
           <div class="form-section">
             <h3 class="section-title">Códigos e Natureza do Serviço</h3>
             <div class="form-row">
-              <po-input name="servicoCodigoTributacaoMunicipal" label="Cód. Tributação Municipal" formControlName="servicoCodigoTributacaoMunicipal"></po-input>
-              <po-input name="servicoNbs" label="Código NBS" formControlName="servicoNbs"></po-input>
+              <po-input name="servicoCodigoTributacaoMunicipal" p-label="Cód. Tributação Municipal" formControlName="servicoCodigoTributacaoMunicipal"></po-input>
+              <po-input name="servicoNbs" p-label="Código NBS" formControlName="servicoNbs"></po-input>
             </div>
             <div class="form-row">
-              <po-input name="servicoNaturezaOperacao" label="Cód. Natureza da Operação" formControlName="servicoNaturezaOperacao"></po-input>
-              <po-input name="servicoSituacaoTributaria" label="Cód. Situação Tributária" formControlName="servicoSituacaoTributaria"></po-input>
+              <po-input name="servicoNaturezaOperacao" p-label="Cód. Natureza da Operação" formControlName="servicoNaturezaOperacao"></po-input>
+              <po-input name="servicoSituacaoTributaria" p-label="Cód. Situação Tributária" formControlName="servicoSituacaoTributaria"></po-input>
             </div>
             <div class="form-row">
-              <po-select name="retencaoIssqn" label="Retenção do ISSQN" formControlName="retencaoIssqn"
+              <po-select name="retencaoIssqn" p-label="Retenção do ISSQN" formControlName="retencaoIssqn"
                 [p-options]="[ {label: '1 - Não retido', value: 1}, {label: '2 - Retido pelo Tomador', value: 2}, {label: '3 - Retido pelo Intermediário', value: 3} ]"></po-select>
             </div>
           </div>
@@ -135,28 +135,28 @@
           <div class="form-section">
             <h3 class="section-title">Descontos e Deduções</h3>
             <div class="form-row">
-              <po-number name="valorDescontoIncondicionado" label="Desconto Incondicionado (R$)" formControlName="valorDescontoIncondicionado"></po-number>
-              <po-number name="valorDescontoCondicionado" label="Desconto Condicionado (R$)" formControlName="valorDescontoCondicionado"></po-number>
+              <po-number name="valorDescontoIncondicionado" p-label="Desconto Incondicionado (R$)" formControlName="valorDescontoIncondicionado"></po-number>
+              <po-number name="valorDescontoCondicionado" p-label="Desconto Condicionado (R$)" formControlName="valorDescontoCondicionado"></po-number>
             </div>
             <div class="form-row">
-              <po-number name="deducaoValor" label="Dedução/Redução (R$)" formControlName="deducaoValor"></po-number>
-              <po-number name="deducaoPercentual" label="Dedução/Redução (%)" formControlName="deducaoPercentual"></po-number>
+              <po-number name="deducaoValor" p-label="Dedução/Redução (R$)" formControlName="deducaoValor"></po-number>
+              <po-number name="deducaoPercentual" p-label="Dedução/Redução (%)" formControlName="deducaoPercentual"></po-number>
             </div>
           </div>
           <div class="form-section">
             <h3 class="section-title">Retenções de Tributos Federais</h3>
             <div class="form-row">
-              <po-number name="retencaoCp" label="CP (R$)" formControlName="retencaoCp"></po-number>
-              <po-number name="retencaoIrrf" label="IRRF (R$)" formControlName="retencaoIrrf"></po-number>
-              <po-number name="retencaoCsll" label="CSLL (R$)" formControlName="retencaoCsll"></po-number>
+              <po-number name="retencaoCp" p-label="CP (R$)" formControlName="retencaoCp"></po-number>
+              <po-number name="retencaoIrrf" p-label="IRRF (R$)" formControlName="retencaoIrrf"></po-number>
+              <po-number name="retencaoCsll" p-label="CSLL (R$)" formControlName="retencaoCsll"></po-number>
             </div>
           </div>
           <div class="form-section">
             <h3 class="section-title">Valores Calculados</h3>
             <div class="form-row">
-              <po-number name="valorBaseCalculo" label="Base de Cálculo (R$)" formControlName="valorBaseCalculo"></po-number>
-              <po-number name="valorIss" label="Valor ISSQN (R$)" formControlName="valorIss"></po-number>
-              <po-number name="valorLiquido" label="Valor Líquido (R$)" formControlName="valorLiquido"></po-number>
+              <po-number name="valorBaseCalculo" p-label="Base de Cálculo (R$)" formControlName="valorBaseCalculo"></po-number>
+              <po-number name="valorIss" p-label="Valor ISSQN (R$)" formControlName="valorIss"></po-number>
+              <po-number name="valorLiquido" p-label="Valor Líquido (R$)" formControlName="valorLiquido"></po-number>
             </div>
           </div>
         </po-tab>
@@ -173,6 +173,6 @@
       Confirmar exclusão (cancelamento) da nota
       <strong>{{ notaSelecionada?.referencia || notaSelecionada?.id }}</strong>?
     </p>
-    <po-input name="motivoExclusao" label="Motivo (opcional)" p-placeholder="Cancelamento solicitado pelo usuário" [(ngModel)]="motivoExclusao"></po-input>
+    <po-input name="motivoExclusao" p-label="Motivo (opcional)" p-placeholder="Cancelamento solicitado pelo usuário" [(ngModel)]="motivoExclusao"></po-input>
   </po-modal>
 </po-page-default>
