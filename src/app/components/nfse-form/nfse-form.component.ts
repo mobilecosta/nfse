@@ -264,6 +264,7 @@ export class NfseFormComponent {
   incluirNota() {
     this.modoVisualizacao = false;
     this.notaSelecionada = null;
+    this.nfseForm.enable();
     this.nfseForm.reset({
       prestadorCpfCnpj: '66549275000197',
       servicoCodigoTributacao: '010701',
@@ -289,6 +290,7 @@ export class NfseFormComponent {
 
   abrirEmissao() {
     this.modoVisualizacao = false;
+    this.nfseForm.enable();
     if (!this.nfseForm.get('prestadorCpfCnpj')?.value) {
       this.nfseForm.patchValue({ prestadorCpfCnpj: '66549275000197' });
     }
@@ -297,12 +299,13 @@ export class NfseFormComponent {
 
   visualizarNota(nota: any) {
     this.notaSelecionada = nota;
+    this.modoVisualizacao = true;
+    this.nfseForm.disable();
     this.carregando.set(true);
-    this.nfseService.consultarNfse(nota.id).subscribe({
-      next: (detalhe: any) => {
+    this.nfseService.baixarXmlDps(nota.id).subscribe({
+      next: (xml: string) => {
         this.carregando.set(false);
-        this.modoVisualizacao = true;
-        this.preencherFormulario(detalhe);
+        this.preencherFormularioDoXml(xml);
         this.modalEmissao?.open();
       },
       error: (error: any) => {
@@ -312,78 +315,69 @@ export class NfseFormComponent {
     });
   }
 
-  private preencherFormulario(nota: any) {
-    const rps = nota.declaracao_prestacao_servico || {};
-    const dps = nota.infDPS || {};
-    const pres = dps.prest || {};
-    const toma = dps.toma || rps.tomador || {};
-    const interm = dps.interm || rps.intermediario || {};
-    const end = toma.end || rps.tomador?.endereco || {};
-    const endPrest = pres.end || rps.prestador?.endereco || {};
-    const serv = dps.serv?.cServ || {};
-    const valores = dps.valores || {};
-    const tribMun = valores.trib?.tribMun || {};
-    const tribFed = valores.trib?.tribFed || {};
-    const vServPrest = valores.vServPrest || {};
-    const vDesc = valores.vDescCondIncond || {};
-    const vDedRed = valores.vDedRed || {};
-    const servicoRps = (rps.servicos || [])[0] || {};
-    const endNac = end.endNac || {};
+  private preencherFormularioDoXml(xmlBruto: string) {
+    let xml = xmlBruto;
+    if (xml.trim().startsWith('"')) {
+      try { xml = JSON.parse(xml); } catch { /* mantém texto original */ }
+    }
+    const doc = new DOMParser().parseFromString(xml, 'text/xml');
+    if (doc.querySelector('parsererror')) {
+      this.poNotification.error('Não foi possível interpretar o XML da nota.');
+      return;
+    }
+    const t = (root: Document | Element, tag: string) => {
+      const el = root.getElementsByTagNameNS('*', tag)[0];
+      return el?.textContent?.trim() ?? '';
+    };
+    const inf = doc.getElementsByTagNameNS('*', 'InfDeclaracaoPrestacaoServico')[0];
+    const prestador = inf ? inf.getElementsByTagNameNS('*', 'Prestador')[0] : undefined;
+    const tomador = inf ? inf.getElementsByTagNameNS('*', 'TomadorServico')[0] : undefined;
+    const servico = inf ? inf.getElementsByTagNameNS('*', 'Servico')[0] : undefined;
+    const valores = servico ? servico.getElementsByTagNameNS('*', 'Valores')[0] : undefined;
+    const endTom = tomador ? tomador.getElementsByTagNameNS('*', 'Endereco')[0] : undefined;
+
+    const cnpjPrest = prestador ? (t(prestador, 'Cnpj') || t(prestador, 'Cpf')) : '';
+    const cnpjTom = tomador ? (t(tomador, 'Cnpj') || t(tomador, 'Cpf')) : '';
+    const valorServicos = parseFloat(t(valores ?? doc, 'ValorServicos')) || 0;
+    const valorIss = parseFloat(t(valores ?? doc, 'ValorIss')) || 0;
+    const aliquota = parseFloat(t(valores ?? doc, 'Aliquota')) || 0;
+    const baseCalculo = parseFloat(t(valores ?? doc, 'BaseCalculo')) || 0;
+    const exigibilidade = t(servico ?? doc, 'ExigibilidadeISS') || '1';
+    const issRetido = t(servico ?? doc, 'IssRetido') || '2';
+    const exigibilidadeMap: Record<string, number> = { '1': 1, '2': 4, '3': 2, '4': 3, '5': 2 };
+    const issRetidoMap: Record<string, number> = { '1': 2, '2': 1 };
 
     this.nfseForm.patchValue({
-      prestadorCpfCnpj: pres.CNPJ || pres.CPF || rps.prestador?.cpf_cnpj || '66549275000197',
-      prestadorNome: pres.xNome || rps.prestador?.nome_razao_social || rps.prestador?.nome_fantasia || '',
-      prestadorEmail: pres.email || rps.prestador?.email || '',
-      prestadorTelefone: pres.fone || rps.prestador?.fone || '',
-      prestadorInscricaoMunicipal: rps.prestador?.inscricao_municipal || '',
-      prestadorCep: endPrest.CEP || endPrest.endNac?.CEP || rps.prestador?.endereco?.cep || '',
-      prestadorLogradouro: endPrest.xLgr || rps.prestador?.endereco?.logradouro || '',
-      prestadorNumero: endPrest.nro || rps.prestador?.endereco?.numero || '',
-      prestadorComplemento: endPrest.xCpl || rps.prestador?.endereco?.complemento || '',
-      prestadorBairro: endPrest.xBairro || rps.prestador?.endereco?.bairro || '',
-      prestadorCidade: endPrest.endNac?.cMun || rps.prestador?.endereco?.cidade || '',
-      prestadorUf: rps.prestador?.endereco?.uf || '',
-      tomadorCpfCnpj: toma.CNPJ || toma.CPF || toma.NIF || rps.tomador?.cpf_cnpj || '',
-      tomadorNome: toma.xNome || rps.tomador?.nome_razao_social || '',
-      tomadorCep: endNac.CEP || end.CEP || rps.tomador?.endereco?.cep || '',
-      tomadorLogradouro: end.xLgr || rps.tomador?.endereco?.logradouro || '',
-      tomadorNumero: end.nro || rps.tomador?.endereco?.numero || '',
-      tomadorComplemento: end.xCpl || rps.tomador?.endereco?.complemento || '',
-      tomadorBairro: end.xBairro || rps.tomador?.endereco?.bairro || '',
-      tomadorCidade: endNac.cMun || rps.tomador?.endereco?.cidade || '',
-      tomadorCodigoMunicipio: endNac.cMun || rps.tomador?.endereco?.codigo_municipio || '',
-      tomadorUf: end.uf || rps.tomador?.endereco?.uf || '',
-      tomadorEmail: toma.email || rps.tomador?.email || '',
-      tomadorTelefone: toma.fone || rps.tomador?.fone || '',
-      tomadorInscricaoMunicipal: toma.IM || rps.tomador?.inscricao_municipal || '',
-      tomadorInscricaoEstadual: toma.IE || '',
-      tomadorNif: toma.NIF || '',
-      tomadorCaepf: toma.CAEPF || '',
-      intermCpfCnpj: interm.CNPJ || interm.CPF || interm.NIF || rps.intermediario?.cpf_cnpj || '',
-      intermNome: interm.xNome || rps.intermediario?.nome_razao_social || '',
-      servicoCodigoCnae: serv.CNAE || servicoRps.codigo_cnae || '',
-      servicoCodigoTributacao: serv.cTribNac || servicoRps.codigo_tributacao || '010701',
-      servicoCodigoTributacaoMunicipal: serv.cTribMun || '',
-      servicoNbs: serv.cNBS || '',
-      servicoNaturezaOperacao: serv.cNatOp || '',
-      servicoSituacaoTributaria: serv.cSitTrib || '',
-      servicoDescricao: serv.xDescServ || servicoRps.descricao || '',
-      servicoQuantidade: servicoRps.quantidade || 1,
-      servicoValorUnitario: servicoRps.valor_unitario ?? vServPrest.vServ ?? 0,
-      servicoAliquotaIss: tribMun.pAliq ?? servicoRps.aliquota_iss ?? 0,
-      tributacaoIssqn: tribMun.tribISSQN ?? 1,
-      retencaoIssqn: tribMun.tpRetISSQN ?? 1,
-      localIncidencia: tribMun.cLocIncid || '3550308',
-      valorDescontoIncondicionado: vDesc.vDescIncond ?? servicoRps.desconto_incondicionado ?? 0,
-      valorDescontoCondicionado: vDesc.vDescCond ?? servicoRps.desconto_condicionado ?? 0,
-      deducaoValor: vDedRed.vDR ?? servicoRps.valor_deducoes ?? 0,
-      deducaoPercentual: vDedRed.pDR ?? 0,
-      retencaoCp: tribFed.vRetCP ?? servicoRps.valor_pis ?? 0,
-      retencaoIrrf: tribFed.vRetIRRF ?? servicoRps.valor_ir ?? 0,
-      retencaoCsll: tribFed.vRetCSLL ?? servicoRps.valor_csll ?? 0,
-      valorBaseCalculo: tribMun.vBC ?? servicoRps.valor_servicos ?? 0,
-      valorIss: tribMun.vISSQN ?? servicoRps.valor_iss ?? 0,
-      valorLiquido: tribMun.vLiq ?? servicoRps.valor_liquido ?? 0
+      prestadorCpfCnpj: cnpjPrest || '66549275000197',
+      prestadorNome: prestador ? t(prestador, 'RazaoSocial') || t(prestador, 'NomeFantasia') : '',
+      prestadorInscricaoMunicipal: prestador ? t(prestador, 'InscricaoMunicipal') : '',
+      prestadorEmail: prestador ? t(prestador, 'Email') : '',
+      prestadorTelefone: prestador ? t(prestador, 'Fone') : '',
+      tomadorCpfCnpj: cnpjTom,
+      tomadorNome: tomador ? t(tomador, 'RazaoSocial') : '',
+      tomadorLogradouro: endTom ? t(endTom, 'Endereco') : '',
+      tomadorNumero: endTom ? t(endTom, 'Numero') : '',
+      tomadorComplemento: endTom ? t(endTom, 'Complemento') : '',
+      tomadorBairro: endTom ? t(endTom, 'Bairro') : '',
+      tomadorCidade: endTom ? t(endTom, 'CodigoMunicipio') : '',
+      tomadorCodigoMunicipio: endTom ? t(endTom, 'CodigoMunicipio') : '',
+      tomadorUf: endTom ? t(endTom, 'Uf') : '',
+      tomadorCep: endTom ? t(endTom, 'Cep') : '',
+      tomadorEmail: tomador ? t(tomador, 'Email') : '',
+      tomadorTelefone: tomador ? t(tomador, 'Fone') : '',
+      servicoCodigoCnae: servico ? t(servico, 'CodigoCnae') : '',
+      servicoCodigoTributacao: servico ? t(servico, 'ItemListaServico') : '',
+      servicoCodigoTributacaoMunicipal: servico ? t(servico, 'CodigoTributacaoMunicipio') : '',
+      servicoDescricao: servico ? t(servico, 'Discriminacao') : '',
+      servicoQuantidade: 1,
+      servicoValorUnitario: valorServicos,
+      servicoAliquotaIss: parseFloat((aliquota * 100).toFixed(2)),
+      tributacaoIssqn: exigibilidadeMap[exigibilidade] ?? 1,
+      retencaoIssqn: issRetidoMap[issRetido] ?? 1,
+      localIncidencia: servico ? t(servico, 'MunicipioIncidencia') || t(servico, 'CodigoMunicipio') : '',
+      valorBaseCalculo: baseCalculo || valorServicos,
+      valorIss,
+      valorLiquido: parseFloat((valorServicos - valorIss).toFixed(2))
     });
   }
 

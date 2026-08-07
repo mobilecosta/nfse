@@ -77,6 +77,13 @@ export class NfseService {
     return this.http.get(`${this.apiUrl}/nfse/${id}`, this.getHeaders());
   }
 
+  baixarXmlDps(id: string): Observable<string> {
+    return this.http.get(`${this.apiUrl}/nfse/${id}/xml/dps`, {
+      ...this.getHeaders(),
+      responseType: 'text'
+    });
+  }
+
   cancelarNfse(id: string, motivo: string, codigo?: string): Observable<any> {
     const body: any = { motivo };
     if (codigo) body.codigo = codigo;
