@@ -24,19 +24,19 @@
     [p-secondary-action]="cancelarModalEmissaoAction"
     [p-loading]="carregando()">
     <form [formGroup]="nfseForm" class="nfse-form">
-      <po-tabs>
-        <po-tab p-label="Obrigatórios">
+      <po-tabs #tabsEmissao>
+        <po-tab id="obrigatorios" p-label="Obrigatórios" [p-active]="true">
           <div class="form-section">
             <h3 class="section-title">Dados do Prestador</h3>
             <div class="form-row">
-              <po-input name="prestadorCpfCnpj" label="CPF/CNPJ *" formControlName="prestadorCpfCnpj"></po-input>
+              <po-input name="prestadorCpfCnpj" label="CPF/CNPJ" p-required formControlName="prestadorCpfCnpj"></po-input>
             </div>
           </div>
           <div class="form-section">
             <h3 class="section-title">Dados do Tomador</h3>
             <div class="form-row">
-              <po-input name="tomadorCpfCnpj" label="CPF/CNPJ *" formControlName="tomadorCpfCnpj"></po-input>
-              <po-input name="tomadorNome" label="Nome/Razão Social *" formControlName="tomadorNome"></po-input>
+              <po-input name="tomadorCpfCnpj" label="CPF/CNPJ" p-required formControlName="tomadorCpfCnpj"></po-input>
+              <po-input name="tomadorNome" label="Nome/Razão Social" p-required formControlName="tomadorNome"></po-input>
             </div>
             <div class="form-row">
               <po-input name="tomadorCep" label="CEP" formControlName="tomadorCep" (p-blur)="consultarCep()"></po-input>
@@ -52,23 +52,23 @@
           <div class="form-section">
             <h3 class="section-title">Dados do Serviço</h3>
             <div class="form-row">
-              <po-input name="servicoCodigoTributacao" label="Cód. Tributação Nacional *" formControlName="servicoCodigoTributacao"></po-input>
+              <po-input name="servicoCodigoTributacao" label="Cód. Tributação Nacional" p-required formControlName="servicoCodigoTributacao"></po-input>
               <po-input name="servicoCodigoCnae" label="CNAE" formControlName="servicoCodigoCnae"></po-input>
-              <po-input name="servicoQuantidade" label="Quantidade" formControlName="servicoQuantidade"></po-input>
+              <po-input name="servicoQuantidade" label="Quantidade" p-required formControlName="servicoQuantidade"></po-input>
             </div>
             <div class="form-row">
-              <po-textarea name="servicoDescricao" label="Descrição do Serviço *" formControlName="servicoDescricao" [p-rows]="3"></po-textarea>
+              <po-textarea name="servicoDescricao" label="Descrição do Serviço" p-required formControlName="servicoDescricao" [p-rows]="3"></po-textarea>
             </div>
             <div class="form-row">
-              <po-number name="servicoValorUnitario" label="Valor Unitário (R$) *" formControlName="servicoValorUnitario"></po-number>
-              <po-number name="servicoAliquotaIss" label="Alíquota ISS (%) *" formControlName="servicoAliquotaIss"></po-number>
-              <po-select name="tributacaoIssqn" label="Tributação ISSQN" formControlName="tributacaoIssqn"
+              <po-number name="servicoValorUnitario" label="Valor Unitário (R$)" p-required formControlName="servicoValorUnitario"></po-number>
+              <po-number name="servicoAliquotaIss" label="Alíquota ISS (%)" p-required formControlName="servicoAliquotaIss"></po-number>
+              <po-select name="tributacaoIssqn" label="Tributação ISSQN" p-required formControlName="tributacaoIssqn"
                 [p-options]="[ {label: '1 - Operação tributável', value: 1}, {label: '2 - Imunidade', value: 2}, {label: '3 - Exportação de serviço', value: 3}, {label: '4 - Não incidência', value: 4} ]"></po-select>
               <po-input name="localIncidencia" label="Cód. Município Incidência (cLocIncid)" formControlName="localIncidencia"></po-input>
             </div>
           </div>
         </po-tab>
-        <po-tab p-label="Prestador">
+        <po-tab id="prestador" p-label="Prestador">
           <div class="form-section">
             <h3 class="section-title">Dados Cadastrais do Prestador</h3>
             <div class="form-row">
@@ -92,7 +92,7 @@
             </div>
           </div>
         </po-tab>
-        <po-tab p-label="Tomador">
+        <po-tab id="tomador" p-label="Tomador">
           <div class="form-section">
             <h3 class="section-title">Dados Complementares do Tomador</h3>
             <div class="form-row">
@@ -114,7 +114,7 @@
             </div>
           </div>
         </po-tab>
-        <po-tab p-label="Serviço">
+        <po-tab id="servico" p-label="Serviço">
           <div class="form-section">
             <h3 class="section-title">Códigos e Natureza do Serviço</h3>
             <div class="form-row">
@@ -131,7 +131,7 @@
             </div>
           </div>
         </po-tab>
-        <po-tab p-label="Valores">
+        <po-tab id="valores" p-label="Valores">
           <div class="form-section">
             <h3 class="section-title">Descontos e Deduções</h3>
             <div class="form-row">

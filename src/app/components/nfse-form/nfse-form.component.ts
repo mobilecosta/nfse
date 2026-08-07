@@ -1,7 +1,7 @@
 import { Component, signal, ViewChild, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { PoModule, PoPageAction, PoNotificationService, PoTableAction, PoTableColumn, PoModalComponent, PoModalAction } from '@po-ui/ng-components';
+import { PoModule, PoPageAction, PoNotificationService, PoTableAction, PoTableColumn, PoModalComponent, PoModalAction, PoTabsComponent } from '@po-ui/ng-components';
 import { NfseService } from '../../services/nfse.service';
 
 @Component({
@@ -26,6 +26,62 @@ export class NfseFormComponent {
 
   @ViewChild('modalExclusao') modalExclusao!: PoModalComponent;
   @ViewChild('modalEmissao') modalEmissao!: PoModalComponent;
+  @ViewChild('tabsEmissao') tabsEmissao!: PoTabsComponent;
+
+  private readonly abaPorCampo: Record<string, string> = {
+    prestadorCpfCnpj: 'obrigatorios',
+    tomadorCpfCnpj: 'obrigatorios',
+    tomadorNome: 'obrigatorios',
+    tomadorCep: 'obrigatorios',
+    tomadorLogradouro: 'obrigatorios',
+    tomadorNumero: 'obrigatorios',
+    tomadorBairro: 'obrigatorios',
+    tomadorCodigoMunicipio: 'obrigatorios',
+    tomadorUf: 'obrigatorios',
+    servicoCodigoTributacao: 'obrigatorios',
+    servicoDescricao: 'obrigatorios',
+    servicoQuantidade: 'obrigatorios',
+    servicoValorUnitario: 'obrigatorios',
+    servicoAliquotaIss: 'obrigatorios',
+    tributacaoIssqn: 'obrigatorios',
+    localIncidencia: 'obrigatorios',
+    prestadorNome: 'prestador',
+    prestadorEmail: 'prestador',
+    prestadorTelefone: 'prestador',
+    prestadorInscricaoMunicipal: 'prestador',
+    prestadorCep: 'prestador',
+    prestadorLogradouro: 'prestador',
+    prestadorNumero: 'prestador',
+    prestadorComplemento: 'prestador',
+    prestadorBairro: 'prestador',
+    prestadorCidade: 'prestador',
+    prestadorUf: 'prestador',
+    tomadorEmail: 'tomador',
+    tomadorTelefone: 'tomador',
+    tomadorComplemento: 'tomador',
+    tomadorInscricaoMunicipal: 'tomador',
+    tomadorInscricaoEstadual: 'tomador',
+    tomadorNif: 'tomador',
+    tomadorCaepf: 'tomador',
+    intermCpfCnpj: 'tomador',
+    intermNome: 'tomador',
+    servicoCodigoCnae: 'servico',
+    servicoCodigoTributacaoMunicipal: 'servico',
+    servicoNbs: 'servico',
+    servicoNaturezaOperacao: 'servico',
+    servicoSituacaoTributaria: 'servico',
+    retencaoIssqn: 'servico',
+    valorDescontoIncondicionado: 'valores',
+    valorDescontoCondicionado: 'valores',
+    deducaoValor: 'valores',
+    deducaoPercentual: 'valores',
+    retencaoCp: 'valores',
+    retencaoIrrf: 'valores',
+    retencaoCsll: 'valores',
+    valorBaseCalculo: 'valores',
+    valorIss: 'valores',
+    valorLiquido: 'valores'
+  };
 
   readonly colunas: PoTableColumn[] = [
     { property: 'numero', label: 'Número' },
@@ -80,10 +136,10 @@ export class NfseFormComponent {
       servicoNaturezaOperacao: [''],
       servicoSituacaoTributaria: [''],
       servicoDescricao: ['', [Validators.required]],
-      servicoQuantidade: [1],
-      servicoValorUnitario: [0, [Validators.required]],
-      servicoAliquotaIss: [0],
-      tributacaoIssqn: [1],
+      servicoQuantidade: [1, [Validators.required, Validators.min(1)]],
+      servicoValorUnitario: [0, [Validators.required, Validators.min(0.01)]],
+      servicoAliquotaIss: [0, [Validators.required, Validators.min(0)]],
+      tributacaoIssqn: [1, [Validators.required]],
       retencaoIssqn: [1],
       localIncidencia: ['3550308'],
       valorDescontoIncondicionado: [0],
@@ -344,7 +400,13 @@ export class NfseFormComponent {
   emitirNfse() {
     if (this.nfseForm.invalid) {
       this.nfseForm.markAllAsTouched();
-      this.poNotification.warning('Preencha os campos obrigatórios para emitir a NFS-e.');
+      const primeiroErro = Object.keys(this.abaPorCampo)
+        .find(campo => this.nfseForm.get(campo)?.invalid);
+      if (primeiroErro) {
+        const aba = this.abaPorCampo[primeiroErro];
+        setTimeout(() => this.tabsEmissao?.activateTab(aba), 0);
+      }
+      this.poNotification.warning('Preencha corretamente os campos obrigatórios para emitir a NFS-e.');
       return;
     }
     this.carregando.set(true);
