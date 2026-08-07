@@ -31,6 +31,17 @@
 .listagem {
   overflow: hidden;
 }
+.lista-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.lista-ordenacao {
+  display: flex;
+  gap: 8px;
+}
 .modal-text {
   margin-bottom: 16px;
 }

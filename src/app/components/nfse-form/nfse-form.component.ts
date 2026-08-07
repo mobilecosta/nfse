@@ -23,6 +23,8 @@ export class NfseFormComponent {
   notaSelecionada: any = null;
   motivoExclusao = '';
   modoVisualizacao = false;
+  ordenarPor: 'numero' | 'data' = 'data';
+  ordenarDirecao: 'asc' | 'desc' = 'desc';
 
   @ViewChild('modalExclusao') modalExclusao!: PoModalComponent;
   @ViewChild('modalEmissao') modalEmissao!: PoModalComponent;
@@ -85,11 +87,13 @@ export class NfseFormComponent {
 
   readonly colunas: PoTableColumn[] = [
     { property: 'numero', label: 'Número' },
-    { property: 'status', label: 'Status' },
-    { property: 'referencia', label: 'Referência' },
     { property: 'data_emissao', label: 'Emissão', type: 'date' },
+    { property: 'status', label: 'Status' },
+    { property: 'ambiente', label: 'Ambiente' },
+    { property: 'referencia', label: 'Referência' },
     { property: 'serieDps', label: 'Série DPS' },
     { property: 'numeroDps', label: 'Nº DPS' },
+    { property: 'codigoVerificacao', label: 'Cód. Verificação' },
     { property: 'mensagensResumo', label: 'Mensagens' }
   ];
 
@@ -203,10 +207,15 @@ export class NfseFormComponent {
       next: (res: any) => {
         this.notas = (res.data || []).map((n: any) => ({
           ...n,
+          numero: n.numero || n.DPS?.nDPS || '',
+          data_emissao: n.data_emissao || n.created_at,
+          ambiente: n.ambiente || '',
+          codigoVerificacao: n.codigo_verificacao || '',
           serieDps: n.DPS?.serie ?? '',
           numeroDps: n.DPS?.nDPS ?? '',
           mensagensResumo: (n.mensagens || []).map((m: any) => `${m.codigo}: ${m.descricao}`).join(' | ')
         }));
+        this.ordenarNotas();
         this.totalNotas = res['@count'] ?? this.notas.length;
         this.carregandoLista.set(false);
       },
@@ -226,6 +235,40 @@ export class NfseFormComponent {
 
   paginaAnterior() { this.irParaPagina(this.paginaAtual - 1); }
   paginaProxima() { this.irParaPagina(this.paginaAtual + 1); }
+
+  get iconeOrdenacaoNumero(): string {
+    if (this.ordenarPor !== 'numero') return 'an-sort';
+    return this.ordenarDirecao === 'asc' ? 'an-sort-ascending' : 'an-sort-descending';
+  }
+
+  get iconeOrdenacaoData(): string {
+    if (this.ordenarPor !== 'data') return 'an-sort';
+    return this.ordenarDirecao === 'asc' ? 'an-sort-ascending' : 'an-sort-descending';
+  }
+
+  alternarOrdenacao(campo: 'numero' | 'data') {
+    if (this.ordenarPor === campo) {
+      this.ordenarDirecao = this.ordenarDirecao === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.ordenarPor = campo;
+      this.ordenarDirecao = campo === 'data' ? 'desc' : 'asc';
+    }
+    this.ordenarNotas();
+  }
+
+  private ordenarNotas() {
+    const dir = this.ordenarDirecao === 'asc' ? 1 : -1;
+    this.notas.sort((a: any, b: any) => {
+      if (this.ordenarPor === 'numero') {
+        const na = parseInt(a.numero, 10) || 0;
+        const nb = parseInt(b.numero, 10) || 0;
+        return (na - nb) * dir;
+      }
+      const da = new Date(a.data_emissao || a.created_at).getTime() || 0;
+      const db = new Date(b.data_emissao || b.created_at).getTime() || 0;
+      return (da - db) * dir;
+    });
+  }
 
   incluirNota() {
     this.modoVisualizacao = false;

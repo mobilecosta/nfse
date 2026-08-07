@@ -1,6 +1,22 @@
 <po-page-default [p-title]="'Emissão de NFS-e'" [p-actions]="acoesPrincipais()" [p-secondary-actions]="acoesSecundarias()">
   <div class="form-section listagem">
-    <h3 class="section-title">Notas Fiscais Emitidas</h3>
+    <div class="lista-header">
+      <h3 class="section-title">Notas Fiscais Emitidas</h3>
+      <div class="lista-ordenacao">
+        <po-button
+          p-kind="secondary"
+          p-label="Ordenar por Número"
+          [p-icon]="iconeOrdenacaoNumero"
+          [p-disabled]="carregandoLista()"
+          (p-click)="alternarOrdenacao('numero')"></po-button>
+        <po-button
+          p-kind="secondary"
+          p-label="Ordenar por Data de Emissão"
+          [p-icon]="iconeOrdenacaoData"
+          [p-disabled]="carregandoLista()"
+          (p-click)="alternarOrdenacao('data')"></po-button>
+      </div>
+    </div>
     <po-table
       [p-items]="notas"
       [p-columns]="colunas"
