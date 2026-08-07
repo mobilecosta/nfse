@@ -325,10 +325,95 @@ export class NfseFormComponent {
       this.poNotification.error('Não foi possível interpretar o XML da nota.');
       return;
     }
-    const t = (root: Document | Element, tag: string) => {
-      const el = root.getElementsByTagNameNS('*', tag)[0];
+    const t = (root: Document | Element | undefined, tag: string) => {
+      const el = root?.getElementsByTagNameNS('*', tag)[0];
       return el?.textContent?.trim() ?? '';
     };
+    const ufPorCodigo: Record<string, string> = {
+      '11': 'RO', '12': 'AC', '13': 'AM', '14': 'RR', '15': 'PA', '16': 'AP', '17': 'TO',
+      '21': 'MA', '22': 'PI', '23': 'CE', '24': 'RN', '25': 'PB', '26': 'PE', '27': 'AL', '28': 'SE', '29': 'BA',
+      '31': 'MG', '32': 'ES', '33': 'RJ', '35': 'SP', '41': 'PR', '42': 'SC', '43': 'RS',
+      '50': 'MS', '51': 'MT', '52': 'GO', '53': 'DF'
+    };
+    const ufPorCodigoMunicipio = (codigo: string) => ufPorCodigo[codigo?.substring(0, 2) || ''] || '';
+
+    const ehNacional = !!doc.getElementsByTagNameNS('*', 'infDPS')[0];
+
+    if (ehNacional) {
+      const inf = doc.getElementsByTagNameNS('*', 'infDPS')[0];
+      const prest = inf.getElementsByTagNameNS('*', 'prest')[0];
+      const toma = inf.getElementsByTagNameNS('*', 'toma')[0];
+      const interm = inf.getElementsByTagNameNS('*', 'interm')[0];
+      const serv = inf.getElementsByTagNameNS('*', 'serv')[0];
+      const cServ = serv ? serv.getElementsByTagNameNS('*', 'cServ')[0] : undefined;
+      const valores = inf.getElementsByTagNameNS('*', 'valores')[0];
+      const vServPrest = valores ? valores.getElementsByTagNameNS('*', 'vServPrest')[0] : undefined;
+      const trib = valores ? valores.getElementsByTagNameNS('*', 'trib')[0] : undefined;
+      const tribMun = trib ? trib.getElementsByTagNameNS('*', 'tribMun')[0] : undefined;
+      const tribFed = trib ? trib.getElementsByTagNameNS('*', 'tribFed')[0] : undefined;
+      const vDesc = valores ? valores.getElementsByTagNameNS('*', 'vDescCondIncond')[0] : undefined;
+      const vDedRed = valores ? valores.getElementsByTagNameNS('*', 'vDedRed')[0] : undefined;
+      const end = toma ? toma.getElementsByTagNameNS('*', 'end')[0] : undefined;
+      const endNac = end ? end.getElementsByTagNameNS('*', 'endNac')[0] : undefined;
+      const locPrest = serv ? serv.getElementsByTagNameNS('*', 'locPrest')[0] : undefined;
+
+      const cnpjPrest = t(prest, 'CNPJ') || t(prest, 'CPF') || '';
+      const cnpjTom = t(toma, 'CNPJ') || t(toma, 'CPF') || t(toma, 'NIF') || '';
+      const cnpjInterm = t(interm, 'CNPJ') || t(interm, 'CPF') || t(interm, 'NIF') || '';
+      const vServ = parseFloat(t(vServPrest ?? doc, 'vServ')) || 0;
+      const pAliq = parseFloat(t(tribMun ?? doc, 'pAliq')) || 0;
+      const cMun = t(endNac ?? doc, 'cMun') || '';
+
+      this.nfseForm.patchValue({
+        prestadorCpfCnpj: cnpjPrest || '66549275000197',
+        prestadorInscricaoMunicipal: t(prest, 'IM'),
+        prestadorEmail: t(prest, 'email'),
+        prestadorTelefone: t(prest, 'fone'),
+        tomadorCpfCnpj: cnpjTom,
+        tomadorNome: t(toma, 'xNome'),
+        tomadorLogradouro: t(end, 'xLgr'),
+        tomadorNumero: t(end, 'nro'),
+        tomadorComplemento: t(end, 'xCpl'),
+        tomadorBairro: t(end, 'xBairro'),
+        tomadorCidade: cMun,
+        tomadorCodigoMunicipio: cMun,
+        tomadorUf: ufPorCodigoMunicipio(cMun),
+        tomadorCep: t(endNac, 'CEP'),
+        tomadorEmail: t(toma, 'email'),
+        tomadorTelefone: t(toma, 'fone'),
+        tomadorInscricaoMunicipal: t(toma, 'IM'),
+        tomadorInscricaoEstadual: t(toma, 'IE'),
+        tomadorNif: t(toma, 'NIF'),
+        tomadorCaepf: t(toma, 'CAEPF'),
+        intermCpfCnpj: cnpjInterm,
+        intermNome: t(interm, 'xNome'),
+        servicoCodigoCnae: t(cServ, 'CNAE'),
+        servicoCodigoTributacao: t(cServ, 'cTribNac'),
+        servicoCodigoTributacaoMunicipal: t(cServ, 'cTribMun'),
+        servicoNbs: t(cServ, 'cNBS'),
+        servicoNaturezaOperacao: t(cServ, 'cNatOp'),
+        servicoSituacaoTributaria: t(cServ, 'cSitTrib'),
+        servicoDescricao: t(cServ, 'xDescServ'),
+        servicoQuantidade: 1,
+        servicoValorUnitario: vServ,
+        servicoAliquotaIss: parseFloat(pAliq.toFixed(2)),
+        tributacaoIssqn: parseInt(t(tribMun ?? doc, 'tribISSQN'), 10) || 1,
+        retencaoIssqn: parseInt(t(tribMun ?? doc, 'tpRetISSQN'), 10) || 1,
+        localIncidencia: t(locPrest ?? doc, 'cLocPrestacao') || t(tribMun ?? doc, 'cLocIncid') || cMun,
+        valorDescontoIncondicionado: parseFloat(t(vDesc ?? doc, 'vDescIncond')) || 0,
+        valorDescontoCondicionado: parseFloat(t(vDesc ?? doc, 'vDescCond')) || 0,
+        deducaoValor: parseFloat(t(vDedRed ?? doc, 'vDR')) || 0,
+        deducaoPercentual: parseFloat(t(vDedRed ?? doc, 'pDR')) || 0,
+        retencaoCp: parseFloat(t(tribFed ?? doc, 'vRetCP')) || 0,
+        retencaoIrrf: parseFloat(t(tribFed ?? doc, 'vRetIRRF')) || 0,
+        retencaoCsll: parseFloat(t(tribFed ?? doc, 'vRetCSLL')) || 0,
+        valorBaseCalculo: parseFloat(t(tribMun ?? doc, 'vBC')) || vServ,
+        valorIss: parseFloat(t(tribMun ?? doc, 'vISSQN')) || 0,
+        valorLiquido: parseFloat(t(tribMun ?? doc, 'vLiq')) || parseFloat((vServ - (parseFloat(t(tribMun ?? doc, 'vISSQN')) || 0)).toFixed(2))
+      });
+      return;
+    }
+
     const inf = doc.getElementsByTagNameNS('*', 'InfDeclaracaoPrestacaoServico')[0];
     const prestador = inf ? inf.getElementsByTagNameNS('*', 'Prestador')[0] : undefined;
     const tomador = inf ? inf.getElementsByTagNameNS('*', 'TomadorServico')[0] : undefined;
